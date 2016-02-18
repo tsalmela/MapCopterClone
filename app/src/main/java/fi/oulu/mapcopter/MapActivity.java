@@ -1,31 +1,49 @@
 package fi.oulu.mapcopter;
 
 import android.annotation.SuppressLint;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.TextureView;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+import dji.sdk.Camera.DJICamera;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapActivity extends AppCompatActivity implements MapCopterRealManager.CopterStatusChangeListener {
+    private static final String TAG = MapActivity.class.getSimpleName();
 
     private static final int UI_ANIMATION_DELAY = 500;
+    private static final String FLAG_CONNECTION_CHANGE = "fi_oulu_mapcopter_connection_change";
     private static final String TAG = "Map acitivity";
 
+    //private View mContentView;
+    private Handler mHandler;
+
+    private Runnable updateRunnable = new Runnable() {
+        @Override
+        public void run() {
+            Intent intent = new Intent(FLAG_CONNECTION_CHANGE);
+            Log.d(TAG, "update runnable");
+            sendBroadcast(intent);
+        }
+    };
+    private TextureView mCameraView;
+    private DJICamera mCamera;
+    private MapCopterManager mapCopterManager;
+    private VideoSurfaceListener surfaceListener;
     private GoogleMap mMap;
     private View mContentView;
     private Button mStopButton;
@@ -33,10 +51,51 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_map);
-        mContentView = findViewById(R.id.content);
 
+        mHandler = new Handler(Looper.getMainLooper());
+        mCameraView = (TextureView) findViewById(R.id.camera_view);
+
+        //SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        //        .findFragmentById(R.id.map);
+        //mapFragment.getMapAsync(this);
+
+        mapCopterManager = MapCopterManager.createManager(this, this);
+        mapCopterManager.initManager();
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(FLAG_CONNECTION_CHANGE);
+        registerReceiver(mReceiver, filter);
+    }
+
+    protected BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            onProductChange();
+        }
+    };
+
+    private void onProductChange() {
+        if (surfaceListener != null) {
+            surfaceListener.initPreviewer();
+        }
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mReceiver);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (surfaceListener == null) {
+            surfaceListener = new VideoSurfaceListener(this, mapCopterManager);
+        }
+        mCameraView.setSurfaceTextureListener(surfaceListener);
+        surfaceListener.initPreviewer();
         mStopButton = (Button) findViewById(R.id.button_stop);
         mStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,19 +121,23 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @SuppressLint("InlinedApi")
     private void hide() {
+        /*
         mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
                 | View.SYSTEM_UI_FLAG_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+                */
     }
 
     @SuppressLint("InlinedApi")
     private void show() {
         // Show the system bar
+        /*
         mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+                */
     }
 
     private final Handler mHideHandler = new Handler();
@@ -95,6 +158,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     @Override
+    public void onStatusChanged() {
+        mHandler.postDelayed(updateRunnable, 500);
+        mHandler.removeCallbacks(updateRunnable);
+
+    }
+
+    /*@Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
@@ -102,5 +172,5 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         LatLng lipasto = new LatLng(65.0591, 25.466549);
         mMap.addMarker(new MarkerOptions().position(lipasto).title("Lipasto"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(lipasto));
-    }
+    }*/
 }
