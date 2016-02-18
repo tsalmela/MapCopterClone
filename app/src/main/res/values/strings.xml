@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Mapcopter</string>
+    <string name="button_stop">Stop</string>
 </resources>
