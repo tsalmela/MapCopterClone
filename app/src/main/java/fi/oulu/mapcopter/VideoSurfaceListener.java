@@ -22,15 +22,18 @@ public class VideoSurfaceListener implements TextureView.SurfaceTextureListener,
         this.mapCopterManager = mapCopterManager;
     }
 
-    private DJICodecManager mCodecManager;
+    private CodecManagerProxy mCodecManager;
 
 
     public void initPreviewer() {
         Log.d(TAG, "initPreviewer");
+        if (mapCopterManager == null) {
+            return;
+        }
         DJIBaseProduct mProduct;
         try {
             mProduct = mapCopterManager.getProduct();
-            Log.d(TAG, "initPreviewer: mProduct " + mProduct);
+            Log.e(TAG, "initPreviewer: mProduct " + mProduct);
         } catch (Exception exception) {
             mProduct = null;
             Log.e(TAG, "initPreviewer: exception ", exception);
@@ -38,6 +41,7 @@ public class VideoSurfaceListener implements TextureView.SurfaceTextureListener,
 
         DJICamera mCamera;
         if (mProduct == null || !mProduct.isConnected()) {
+            Log.e(TAG, "initPreviewer: product null or not connected");
             mCamera = null;
         } else {
             Log.d(TAG, "initPreviewer: product connected not null");
@@ -46,11 +50,13 @@ public class VideoSurfaceListener implements TextureView.SurfaceTextureListener,
             //}
 
             if (!mProduct.getModel().equals(DJIBaseProduct.Model.UnknownAircraft)) {
+                Log.d(TAG, "initPreviewer: product model " + mProduct.getModel());
                 mCamera = mProduct.getCamera();
                 if (mCamera != null) {
                     mCamera.setDJICameraReceivedVideoDataCallback(this);
                 }
             } else {
+                Log.d(TAG, "initPreviewer: product model unknownaircraft ");
                 if (mProduct.getAirLink() != null) {
                     if (mProduct.getAirLink().getLBAirLink() != null) {
                         mProduct.getAirLink().getLBAirLink().setDJIOnReceivedVideoCallback(this);
@@ -64,7 +70,7 @@ public class VideoSurfaceListener implements TextureView.SurfaceTextureListener,
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
         if (mCodecManager == null) {
             Log.e(TAG, "codecmanager null");
-            mCodecManager = new DJICodecManager(context, surface, width, height);
+            mCodecManager = new CodecManagerProxy(context, surface, width, height);
         }
     }
 

@@ -13,13 +13,12 @@ import android.util.Log;
 import android.view.TextureView;
 
 import dji.sdk.Camera.DJICamera;
-import dji.sdk.base.DJIBaseProduct;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class MapActivity extends AppCompatActivity implements MapCopterManager.CopterStatusChangeListener {
+public class MapActivity extends AppCompatActivity implements MapCopterRealManager.CopterStatusChangeListener {
     private static final String TAG = MapActivity.class.getSimpleName();
 
     private static final int UI_ANIMATION_DELAY = 500;
@@ -44,21 +43,16 @@ public class MapActivity extends AppCompatActivity implements MapCopterManager.C
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Log.d(TAG, "onCreate");
+        setContentView(R.layout.activity_map);
 
         mHandler = new Handler(Looper.getMainLooper());
-        setContentView(R.layout.activity_map);
         mCameraView = (TextureView) findViewById(R.id.camera_view);
-
-        surfaceListener = new VideoSurfaceListener(this, mapCopterManager);
-        mCameraView.setSurfaceTextureListener(surfaceListener);
 
         //SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
         //        .findFragmentById(R.id.map);
         //mapFragment.getMapAsync(this);
 
-        mapCopterManager = new MapCopterManager(this, this);
+        mapCopterManager = MapCopterManager.createManager(this, this);
         mapCopterManager.initManager();
 
         IntentFilter filter = new IntentFilter();
@@ -89,9 +83,11 @@ public class MapActivity extends AppCompatActivity implements MapCopterManager.C
     @Override
     protected void onResume() {
         super.onResume();
-        if (surfaceListener != null) {
-            surfaceListener.initPreviewer();
+        if (surfaceListener == null) {
+            surfaceListener = new VideoSurfaceListener(this, mapCopterManager);
         }
+        mCameraView.setSurfaceTextureListener(surfaceListener);
+        surfaceListener.initPreviewer();
     }
 
     @Override
