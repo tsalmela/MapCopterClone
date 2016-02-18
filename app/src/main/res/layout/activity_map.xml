@@ -6,11 +6,11 @@
     android:background="#0099cc"
     tools:context="fi.oulu.mapcopter.MapActivity">
 
-    <TextureView
-        android:id="@+id/camera_view"
+    <!-- The primary full-screen view. -->
+    <FrameLayout
+        android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        />
         android:keepScreenOn="true">
 
         <fragment
@@ -35,11 +35,13 @@
             android:layout_gravity="bottom|left"
             android:layout_height="wrap_content" />
 
-        <View
+
+        <TextureView
+            android:id="@+id/camera_view"
             android:layout_width="300dp"
             android:layout_height="200dp"
             android:layout_alignParentBottom="true"
-            android:background="@android:color/black"/>
+            />
 
         <Button
             style="?android:attr/buttonStyleSmall"
