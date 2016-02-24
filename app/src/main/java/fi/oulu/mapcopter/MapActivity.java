@@ -21,9 +21,15 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import dji.sdk.Camera.DJICamera;
+import dji.sdk.MissionManager.DJIMission;
+import dji.sdk.MissionManager.DJIWaypoint;
+import dji.sdk.MissionManager.DJIWaypointMission;
+import dji.sdk.base.DJIBaseComponent;
+import dji.sdk.base.DJIError;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -53,6 +59,8 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
     private GoogleMap mMap;
     private View mContentView;
     private Button mStopButton;
+    private TouchableMapFragment mapFragment;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,15 +70,17 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
         mHandler = new Handler(Looper.getMainLooper());
         mCameraView = (TextureView) findViewById(R.id.camera_view);
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        mapFragment = (TouchableMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+
 
         mStopButton = (Button) findViewById(R.id.button_stop);
         mStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "STOP button pushed: ");
+                Log.d(TAG, mMap.getCameraPosition().target.toString());
             }
         });
 
@@ -81,6 +91,15 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
         filter.addAction(FLAG_CONNECTION_CHANGE);
         registerReceiver(mReceiver, filter);
     }
+
+
+
+
+
+
+
+
+
 
     protected BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -167,13 +186,57 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
 
     }
 
+    Marker marker;
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
         // Add a marker and move the camera
         LatLng lipasto = new LatLng(65.0591, 25.466549);
-        mMap.addMarker(new MarkerOptions().position(lipasto).title("Lipasto"));
+        marker = mMap.addMarker(new MarkerOptions().position(lipasto).title("Lipasto"));
+
+
         mMap.moveCamera(CameraUpdateFactory.newLatLng(lipasto));
+
+        DJIWaypointMission djiMission = new DJIWaypointMission();
+        LatLng target = mMap.getCameraPosition().target;
+        djiMission.addWaypoint(new DJIWaypoint(target.latitude, target.longitude, 100));
+
+        mapCopterManager.getProduct().getMissionManager().prepareMission(djiMission, new DJIMission.DJIMissionProgressHandler() {
+            @Override
+            public void onProgress(DJIMission.DJIProgressType djiProgressType, float v) {
+
+            }
+        }, new DJIBaseComponent.DJICompletionCallback() {
+            @Override
+            public void onResult(DJIError djiError) {
+
+            }
+        });
+
+        new MapStateListener(mMap, mapFragment, this) {
+            @Override
+            public void onMapTouched() {
+                // Map touched
+            }
+
+            @Override
+            public void onMapReleased() {
+                Log.d(TAG, mMap.getCameraPosition().target.toString());
+                marker.setPosition(mMap.getCameraPosition().target);
+
+            }
+
+            @Override
+            public void onMapUnsettled() {
+                // Map unsettled
+            }
+
+            @Override
+            public void onMapSettled() {
+                // Map settled
+            }
+        };
     }
 }
