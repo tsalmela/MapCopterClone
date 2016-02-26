@@ -25,10 +25,17 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import dji.sdk.Camera.DJICamera;
+import dji.sdk.FlightController.DJIFlightController;
+import dji.sdk.FlightController.DJIFlightControllerDataType;
+import dji.sdk.FlightController.DJIFlightControllerDelegate;
 import dji.sdk.MissionManager.DJIMission;
+import dji.sdk.MissionManager.DJIMissionManager;
 import dji.sdk.MissionManager.DJIWaypoint;
 import dji.sdk.MissionManager.DJIWaypointMission;
+import dji.sdk.Products.DJIAircraft;
+import dji.sdk.SDKManager.DJISDKManager;
 import dji.sdk.base.DJIBaseComponent;
+import dji.sdk.base.DJIBaseProduct;
 import dji.sdk.base.DJIError;
 
 /**
@@ -60,6 +67,7 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
     private View mContentView;
     private Button mStopButton;
     private TouchableMapFragment mapFragment;
+    private Marker aircraftLocationMarker;
 
 
     @Override
@@ -75,12 +83,87 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
         mapFragment.getMapAsync(this);
 
 
-
         mStopButton = (Button) findViewById(R.id.button_stop);
         mStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, mMap.getCameraPosition().target.toString());
+
+                DJIWaypointMission djiMission = new DJIWaypointMission();
+                djiMission.maxFlightSpeed = 14;
+                djiMission.autoFlightSpeed = 4;
+                LatLng target = mMap.getCameraPosition().target;
+
+                //djiMission.addWaypoint(new DJIWaypoint(target.latitude, target.longitude, 30));
+
+
+                DJIBaseProduct product = mapCopterManager.getProduct();
+                if (product instanceof DJIAircraft) {
+                    Log.d(TAG, "product is dji aircraft");
+                    DJIAircraft aircraft = (DJIAircraft) product;
+
+
+                    DJIFlightController flightController = aircraft.getFlightController();
+
+                    if (flightController != null) {
+                        flightController.setUpdateSystemStateCallback(new DJIFlightControllerDelegate.FlightControllerUpdateSystemStateCallback() {
+                            @Override
+                            public void onResult(final DJIFlightControllerDataType.DJIFlightControllerCurrentState state) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        DJIFlightControllerDataType.DJILocationCoordinate3D currentLocation = state.getAircraftLocation();
+                                        LatLng position = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+                                        aircraftLocationMarker.setPosition(position);
+                                    }
+                                });
+                            }
+                        });
+
+
+                        DJIFlightControllerDataType.DJILocationCoordinate3D aircraftLocation = flightController.getCurrentState().getAircraftLocation();
+                        Log.d(TAG, "current location: " + aircraftLocation.getLatitude() + ":" + aircraftLocation.getLongitude() + " " + aircraftLocation.getAltitude());
+                        djiMission.addWaypoint(new DJIWaypoint(aircraftLocation.getLatitude(), aircraftLocation.getLongitude(), aircraftLocation.getAltitude()));
+                    } else {
+                        Log.w(TAG, "Flight controller null");
+                    }
+                } else {
+                    Log.w(TAG, "product not aircraft");
+                }
+
+                djiMission.addWaypoint(new DJIWaypoint(target.latitude, target.longitude, 30));
+
+
+                final DJIMissionManager missionManager = mapCopterManager.getProduct().getMissionManager();
+                missionManager.prepareMission(djiMission, new DJIMission.DJIMissionProgressHandler() {
+                    @Override
+                    public void onProgress(DJIMission.DJIProgressType djiProgressType, float v) {
+                        Log.d(TAG, "onProgress: mission progress " + v);
+
+                    }
+                }, new DJIBaseComponent.DJICompletionCallback() {
+                    @Override
+                    public void onResult(DJIError djiError) {
+                        if (djiError != null) {
+                            Log.e(TAG, "preparemission error: " + djiError.getDescription());
+                        } else {
+                            Log.d(TAG, "onResult: preparemission completed");
+                            missionManager.startMissionExecution(new DJIBaseComponent.DJICompletionCallback() {
+                                @Override
+                                public void onResult(DJIError djiError) {
+                                    if (djiError != null) {
+                                        Log.e(TAG, "Start mission error: " + djiError.getDescription());
+                                    } else {
+                                        Log.d(TAG, "Start mission completed");
+                                    }
+                                }
+                            });
+
+                        }
+
+                    }
+                });
+
             }
         });
 
@@ -91,14 +174,6 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
         filter.addAction(FLAG_CONNECTION_CHANGE);
         registerReceiver(mReceiver, filter);
     }
-
-
-
-
-
-
-
-
 
 
     protected BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -195,25 +270,9 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
         // Add a marker and move the camera
         LatLng lipasto = new LatLng(65.0591, 25.466549);
         marker = mMap.addMarker(new MarkerOptions().position(lipasto).title("Lipasto"));
-
+        aircraftLocationMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)));
 
         mMap.moveCamera(CameraUpdateFactory.newLatLng(lipasto));
-
-        DJIWaypointMission djiMission = new DJIWaypointMission();
-        LatLng target = mMap.getCameraPosition().target;
-        djiMission.addWaypoint(new DJIWaypoint(target.latitude, target.longitude, 100));
-
-        mapCopterManager.getProduct().getMissionManager().prepareMission(djiMission, new DJIMission.DJIMissionProgressHandler() {
-            @Override
-            public void onProgress(DJIMission.DJIProgressType djiProgressType, float v) {
-
-            }
-        }, new DJIBaseComponent.DJICompletionCallback() {
-            @Override
-            public void onResult(DJIError djiError) {
-
-            }
-        });
 
         new MapStateListener(mMap, mapFragment, this) {
             @Override

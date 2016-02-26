@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import dji.sdk.Codec.DJICodecManager;
+import dji.sdk.FlightController.DJIFlightController;
 import dji.sdk.base.DJIBaseProduct;
 
 public abstract class MapCopterManager {
@@ -25,4 +26,6 @@ public abstract class MapCopterManager {
             return new MapCopterDummyManager();
         }
     }
+
+    public abstract DJIFlightController getFlightController();
 }

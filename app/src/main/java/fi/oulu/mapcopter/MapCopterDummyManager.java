@@ -1,5 +1,6 @@
 package fi.oulu.mapcopter;
 
+import dji.sdk.FlightController.DJIFlightController;
 import dji.sdk.base.DJIBaseProduct;
 
 public class MapCopterDummyManager extends MapCopterManager {
@@ -11,5 +12,10 @@ public class MapCopterDummyManager extends MapCopterManager {
     @Override
     public void initManager() {
 
+    }
+
+    @Override
+    public DJIFlightController getFlightController() {
+        return null;
     }
 }

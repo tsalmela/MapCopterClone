@@ -91,7 +91,6 @@ public class VideoSurfaceListener implements TextureView.SurfaceTextureListener,
 
     @Override
     public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-        Log.e(TAG, "onSurfaceTextureUpdated: ");
     }
 
     @Override

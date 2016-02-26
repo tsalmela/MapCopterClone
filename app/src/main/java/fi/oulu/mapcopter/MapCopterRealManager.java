@@ -3,8 +3,10 @@ package fi.oulu.mapcopter;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
+import dji.sdk.FlightController.DJIFlightController;
 import dji.sdk.SDKManager.DJISDKManager;
 import dji.sdk.base.DJIBaseComponent;
 import dji.sdk.base.DJIBaseProduct;
@@ -78,12 +80,24 @@ public class MapCopterRealManager extends MapCopterManager implements DJISDKMana
         statusListener.onStatusChanged();
     }
 
+    @Nullable
+    @Override
+    public DJIFlightController getFlightController() {
+        return flightController;
+    }
+
+    private DJIFlightController flightController;
 
     private DJIBaseProduct.DJIBaseProductListener mDJIBaseProductListener = new DJIBaseProduct.DJIBaseProductListener() {
         @Override
         public void onComponentChange(DJIBaseProduct.DJIComponentKey key, DJIBaseComponent oldComponent, DJIBaseComponent newComponent) {
+            Log.d(TAG, "Component changed " + key.name());
             if (newComponent != null) {
                 newComponent.setDJIComponentListener(mDJIComponentListener);
+            }
+            if (key == DJIBaseProduct.DJIComponentKey.FlightController) {
+                Log.d(TAG, "Got flight controller");
+                flightController = (DJIFlightController) newComponent;
             }
             notifyStatusChange();
         }
