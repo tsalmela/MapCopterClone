@@ -11,15 +11,13 @@ import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.TextureView;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -33,7 +31,6 @@ import dji.sdk.MissionManager.DJIMissionManager;
 import dji.sdk.MissionManager.DJIWaypoint;
 import dji.sdk.MissionManager.DJIWaypointMission;
 import dji.sdk.Products.DJIAircraft;
-import dji.sdk.SDKManager.DJISDKManager;
 import dji.sdk.base.DJIBaseComponent;
 import dji.sdk.base.DJIBaseProduct;
 import dji.sdk.base.DJIError;
@@ -270,7 +267,10 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
         // Add a marker and move the camera
         LatLng lipasto = new LatLng(65.0591, 25.466549);
         marker = mMap.addMarker(new MarkerOptions().position(lipasto).title("Lipasto"));
-        aircraftLocationMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)));
+        aircraftLocationMarker = mMap.addMarker(new MarkerOptions()
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_aircraft))
+                .position(new LatLng(0, 0)));
+
 
         mMap.moveCamera(CameraUpdateFactory.newLatLng(lipasto));
 
