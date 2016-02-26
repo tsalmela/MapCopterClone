@@ -65,6 +65,7 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
     private Button mStopButton;
     private TouchableMapFragment mapFragment;
     private Marker aircraftLocationMarker;
+    private Marker destinationMarker;
 
 
     @Override
@@ -87,8 +88,8 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
                 Log.d(TAG, mMap.getCameraPosition().target.toString());
 
                 DJIWaypointMission djiMission = new DJIWaypointMission();
-                djiMission.maxFlightSpeed = 14;
-                djiMission.autoFlightSpeed = 4;
+                djiMission.maxFlightSpeed = 15;
+                djiMission.autoFlightSpeed = 15;
                 LatLng target = mMap.getCameraPosition().target;
 
                 //djiMission.addWaypoint(new DJIWaypoint(target.latitude, target.longitude, 30));
@@ -129,7 +130,7 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
                 }
 
                 djiMission.addWaypoint(new DJIWaypoint(target.latitude, target.longitude, 30));
-
+                destinationMarker.setPosition(target);
 
                 final DJIMissionManager missionManager = mapCopterManager.getProduct().getMissionManager();
                 missionManager.prepareMission(djiMission, new DJIMission.DJIMissionProgressHandler() {
@@ -267,6 +268,9 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
         // Add a marker and move the camera
         LatLng lipasto = new LatLng(65.0591, 25.466549);
         marker = mMap.addMarker(new MarkerOptions().position(lipasto).title("Lipasto"));
+        destinationMarker = mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(0, 0))
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
         aircraftLocationMarker = mMap.addMarker(new MarkerOptions()
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_aircraft))
                 .position(new LatLng(0, 0)));
