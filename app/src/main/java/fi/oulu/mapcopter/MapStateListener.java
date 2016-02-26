@@ -1,8 +1,5 @@
 package fi.oulu.mapcopter;
 
-/**
- * Created by elmerimerenheimo on 24.2.2016.
- */
 import android.app.Activity;
 
 import com.google.android.gms.maps.GoogleMap;

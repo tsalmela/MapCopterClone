@@ -13,7 +13,6 @@ import dji.sdk.base.DJIBaseProduct;
 public class VideoSurfaceListener implements TextureView.SurfaceTextureListener, DJICamera.CameraReceivedVideoDataCallback, DJILBAirLink.DJIOnReceivedVideoCallback {
     private static final String TAG = VideoSurfaceListener.class.getSimpleName();
 
-
     private Context context;
     private MapCopterManager mapCopterManager;
 
@@ -23,7 +22,6 @@ public class VideoSurfaceListener implements TextureView.SurfaceTextureListener,
     }
 
     private CodecManagerProxy mCodecManager;
-
 
     public void initPreviewer() {
         Log.d(TAG, "initPreviewer");
@@ -42,7 +40,6 @@ public class VideoSurfaceListener implements TextureView.SurfaceTextureListener,
         DJICamera mCamera;
         if (mProduct == null || !mProduct.isConnected()) {
             Log.e(TAG, "initPreviewer: product null or not connected");
-            mCamera = null;
         } else {
             Log.d(TAG, "initPreviewer: product connected not null");
             //if (mCameraView != null) {
@@ -100,7 +97,6 @@ public class VideoSurfaceListener implements TextureView.SurfaceTextureListener,
             mCodecManager.sendDataToDecoder(videoBuffer, size);
         } else {
             Log.e(TAG, "codec manager null");
-
         }
     }
 }

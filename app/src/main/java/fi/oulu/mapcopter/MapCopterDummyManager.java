@@ -1,6 +1,8 @@
 package fi.oulu.mapcopter;
 
 import dji.sdk.FlightController.DJIFlightController;
+import com.google.android.gms.maps.model.LatLng;
+
 import dji.sdk.base.DJIBaseProduct;
 
 public class MapCopterDummyManager extends MapCopterManager {
@@ -11,6 +13,11 @@ public class MapCopterDummyManager extends MapCopterManager {
 
     @Override
     public void initManager() {
+
+    }
+
+    @Override
+    public void moveToPos(LatLng position) {
 
     }
 

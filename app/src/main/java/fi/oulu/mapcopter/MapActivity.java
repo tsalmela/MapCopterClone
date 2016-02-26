@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -21,6 +22,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import dji.sdk.Camera.DJICamera;
 import dji.sdk.FlightController.DJIFlightController;
@@ -39,41 +42,41 @@ import dji.sdk.base.DJIError;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class MapActivity extends AppCompatActivity implements MapCopterRealManager.CopterStatusChangeListener, OnMapReadyCallback {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
     private static final String TAG = MapActivity.class.getSimpleName();
 
     private static final int UI_ANIMATION_DELAY = 500;
-    private static final String FLAG_CONNECTION_CHANGE = "fi_oulu_mapcopter_connection_change";
 
-    //private View mContentView;
-    private Handler mHandler;
-
-    private Runnable updateRunnable = new Runnable() {
-        @Override
-        public void run() {
-            Intent intent = new Intent(FLAG_CONNECTION_CHANGE);
-            Log.d(TAG, "update runnable");
-            sendBroadcast(intent);
-        }
-    };
     private TextureView mCameraView;
-    private DJICamera mCamera;
     private MapCopterManager mapCopterManager;
     private VideoSurfaceListener surfaceListener;
     private GoogleMap mMap;
-    private View mContentView;
+    private Marker marker;
     private Button mStopButton;
     private TouchableMapFragment mapFragment;
     private Marker aircraftLocationMarker;
     private Marker destinationMarker;
 
+    private Bus eventBus;
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        eventBus.register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        eventBus.unregister(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
-        mHandler = new Handler(Looper.getMainLooper());
         mCameraView = (TextureView) findViewById(R.id.camera_view);
 
         mapFragment = (TouchableMapFragment) getSupportFragmentManager()
@@ -165,12 +168,8 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
             }
         });
 
-        mapCopterManager = MapCopterManager.createManager(this, this);
-        mapCopterManager.initManager();
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(FLAG_CONNECTION_CHANGE);
-        registerReceiver(mReceiver, filter);
+        eventBus = MapCopter.getDefaultBus();
+        mapCopterManager = MapCopter.getMapCopterManager();
     }
 
 
@@ -185,13 +184,6 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
         if (surfaceListener != null) {
             surfaceListener.initPreviewer();
         }
-    }
-
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unregisterReceiver(mReceiver);
     }
 
     @Override
@@ -252,14 +244,11 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
 
-    @Override
-    public void onStatusChanged() {
-        mHandler.postDelayed(updateRunnable, 500);
-        mHandler.removeCallbacks(updateRunnable);
-
+    @Subscribe
+    public void onCopterStatusChanged(CopterStatusChangeEvent event) {
+        Toast.makeText(this, event.getMessage(), Toast.LENGTH_LONG).show();
     }
 
-    Marker marker;
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -275,7 +264,6 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_aircraft))
                 .position(new LatLng(0, 0)));
 
-
         mMap.moveCamera(CameraUpdateFactory.newLatLng(lipasto));
 
         new MapStateListener(mMap, mapFragment, this) {
@@ -286,9 +274,10 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
 
             @Override
             public void onMapReleased() {
-                Log.d(TAG, mMap.getCameraPosition().target.toString());
-                marker.setPosition(mMap.getCameraPosition().target);
-
+                LatLng centerOfMap = mMap.getCameraPosition().target;
+                Log.d(TAG, centerOfMap.toString());
+                marker.setPosition(centerOfMap);
+                mapCopterManager.moveToPos(centerOfMap);
             }
 
             @Override
