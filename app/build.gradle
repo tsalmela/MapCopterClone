@@ -12,6 +12,14 @@ android {
         versionName "0.1"
     }
 
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+
+    packagingOptions {
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+    }
+
     sourceSets {
         main {
             //jniLibs.srcDirs = ['..\\dJISDKLIB\\libs']
@@ -34,5 +42,7 @@ dependencies {
     compile 'com.android.support:support-v4:+'
     compile 'com.google.android.gms:play-services-maps:+'
     compile 'com.squareup:otto:+'
+    compile 'com.jakewharton:butterknife:7.0.1'
+
     compile project(':dJISDKLIB')
 }

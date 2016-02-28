@@ -1,4 +1,4 @@
-package fi.oulu.mapcopter;
+package fi.oulu.mapcopter.event;
 
 public class CopterStatusChangeEvent {
     private String message = "";
