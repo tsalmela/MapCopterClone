@@ -15,7 +15,7 @@
 
         <fragment
             android:id="@+id/map"
-            android:name="fi.oulu.mapcopter.TouchableMapFragment"
+            android:name="fi.oulu.mapcopter.view.TouchableMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </FrameLayout>
@@ -41,6 +41,7 @@
             android:layout_width="300dp"
             android:layout_height="200dp"
             android:layout_alignParentBottom="true"
+            android:background="@android:color/holo_purple"
             />
 
         <Button
