@@ -57,7 +57,9 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
         return cameraManager;
     }
 
-    private LatLng getCurrentPosition() {
+    @NonNull
+    @Override
+    public LatLng getCurrentPosition() {
         if (flightController != null) {
             DJIFlightControllerDataType.DJILocationCoordinate3D aircraftLocation = flightController.getCurrentState().getAircraftLocation();
             return new LatLng(aircraftLocation.getLatitude(), aircraftLocation.getLongitude());
@@ -141,6 +143,7 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
             public void onResult(DJIError error) {
                 if (error != null) {
                     Log.e(TAG, "preparemission error: " + error.getDescription());
+                    eventBus.post(new CopterStatusChangeEvent("Preparemission failed: " + error.getDescription()));
                 } else {
                     Log.d(TAG, "onResult: preparemission completed");
                     if (isConnected()) {
@@ -148,8 +151,10 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
                             @Override
                             public void onResult(DJIError error) {
                                 if (error != null) {
+                                    eventBus.post(new CopterStatusChangeEvent("Start mission failed: " + error.getDescription()));
                                     Log.e(TAG, "Start mission error: " + error.getDescription());
                                 } else {
+                                    eventBus.post(new CopterStatusChangeEvent("Mission started"));
                                     Log.d(TAG, "Start mission completed");
                                 }
                             }

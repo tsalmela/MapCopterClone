@@ -56,11 +56,13 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
 
     @OnClick(R.id.button_stop)
     public void onStopButtonClicked() {
-        Log.d(TAG, "Current aircraft position: " + mMap.getCameraPosition().target.toString());
+        Log.d(TAG, "Current aircraft position: " + mapCopterManager.getCurrentPosition().toString());
+        Log.d(TAG, "Moving to: " + mMap.getCameraPosition().target.toString());
 
         LatLng target = mMap.getCameraPosition().target;
         destinationMarker.setPosition(target);
         mapCopterManager.moveToPos(target.latitude, target.longitude);
+        displayToast("Moving to " + target.toString());
     }
 
     @Override

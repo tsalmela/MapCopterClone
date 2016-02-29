@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.squareup.otto.Bus;
 
 public abstract class CopterManager {
@@ -28,6 +29,9 @@ public abstract class CopterManager {
     public abstract @NonNull CameraManager getCameraManager();
 
     public abstract void moveToPos(double latitude, double longitude);
+
+    @NonNull
+    public abstract LatLng getCurrentPosition();
 
     public void setCopterPositionChangeListener(AircraftPositionChangeListener positionChangeListener) {
         this.positionChangeListener = positionChangeListener;

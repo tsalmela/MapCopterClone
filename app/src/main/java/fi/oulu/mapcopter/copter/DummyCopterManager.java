@@ -5,6 +5,8 @@ import android.graphics.SurfaceTexture;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
+
 public class DummyCopterManager extends CopterManager {
     private static final String TAG = DummyCopterManager.class.getSimpleName();
 
@@ -26,5 +28,11 @@ public class DummyCopterManager extends CopterManager {
     @Override
     public void moveToPos(double latitude, double longitude) {
         Log.d(TAG, "moveToPos: " + latitude + ":" + longitude);
+    }
+
+    @NonNull
+    @Override
+    public LatLng getCurrentPosition() {
+        return new LatLng(0, 0);
     }
 }
