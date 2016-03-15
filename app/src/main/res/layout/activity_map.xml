@@ -28,12 +28,7 @@
         android:layout_height="match_parent"
         android:fitsSystemWindows="true">
 
-        <TextView
-            android:id="@+id/button_kalamies"
-            android:background="@android:color/darker_gray"
-            android:layout_width="wrap_content"
-            android:layout_gravity="bottom|left"
-            android:layout_height="wrap_content" />
+
 
 
         <TextureView
@@ -45,14 +40,48 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
+            android:background="@drawable/oval"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/button_stop"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:text="@string/button_stop" />
+            android:text="@string/button_stop"
+            android:layout_margin="16dp"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            />
+
+        <SeekBar
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/seekBar"
+            android:layout_above="@+id/textView"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="51dp"
+            android:max="150"
+
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Large Text"
+            android:id="@+id/textView"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
 
     </RelativeLayout>
+
+    <ViewAnimator
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/viewAnimator"
+        android:layout_gravity="right|top" />
 
 </FrameLayout>

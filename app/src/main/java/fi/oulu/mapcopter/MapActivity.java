@@ -15,6 +15,9 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -34,10 +37,15 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
 
     private static final int UI_ANIMATION_DELAY = 500;
     private static final String FLAG_CONNECTION_CHANGE = "fi_oulu_mapcopter_connection_change";
-
+    private final Handler mHideHandler = new Handler();
+    private final Runnable mHideRunnable = new Runnable() {
+        @Override
+        public void run() {
+            hide();
+        }
+    };
     //private View mContentView;
     private Handler mHandler;
-
     private Runnable updateRunnable = new Runnable() {
         @Override
         public void run() {
@@ -50,14 +58,47 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
     private DJICamera mCamera;
     private MapCopterManager mapCopterManager;
     private VideoSurfaceListener surfaceListener;
+    protected BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            onProductChange();
+        }
+    };
     private GoogleMap mMap;
     private View mContentView;
     private Button mStopButton;
+    private SeekBar seekBar;
+    private TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        initializeVariables();
+
+        // Initialize the textview with '0'.
+        textView.setText("Korkeus: " + seekBar.getProgress() + "/" + seekBar.getMax());
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int progress = 0;
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progresValue, boolean fromUser) {
+                progress = progresValue;
+                Toast.makeText(getApplicationContext(), "Muutetaan korkeutta", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                Toast.makeText(getApplicationContext(), "Started tracking seekbar", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                textView.setText("Covered: " + progress + "/" + seekBar.getMax());
+                Toast.makeText(getApplicationContext(), "Stopped tracking seekbar", Toast.LENGTH_SHORT).show();
+            }
+        });
+
 
         mHandler = new Handler(Looper.getMainLooper());
         mCameraView = (TextureView) findViewById(R.id.camera_view);
@@ -67,6 +108,7 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
         mapFragment.getMapAsync(this);
 
         mStopButton = (Button) findViewById(R.id.button_stop);
+
         mStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,22 +121,22 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(FLAG_CONNECTION_CHANGE);
+
         registerReceiver(mReceiver, filter);
+
     }
 
-    protected BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            onProductChange();
-        }
-    };
+    // A private method to help us initialize our variables.
+    private void initializeVariables() {
+        seekBar = (SeekBar) findViewById(R.id.seekBar);
+        textView = (TextView) findViewById(R.id.textView);
+    }
 
     private void onProductChange() {
         if (surfaceListener != null) {
             surfaceListener.initPreviewer();
         }
     }
-
 
     @Override
     protected void onDestroy() {
@@ -142,14 +184,6 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
                 */
     }
-
-    private final Handler mHideHandler = new Handler();
-    private final Runnable mHideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            hide();
-        }
-    };
 
     /**
      * Schedules a call to hide() in [delay] milliseconds, canceling any
