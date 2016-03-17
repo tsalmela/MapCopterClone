@@ -14,6 +14,7 @@ import com.squareup.otto.Bus;
 import dji.sdk.FlightController.DJIFlightControllerDataType;
 import dji.sdk.FlightController.DJIFlightControllerDelegate;
 import dji.sdk.MissionManager.DJIMission;
+import dji.sdk.MissionManager.DJIMissionManager;
 import dji.sdk.MissionManager.DJIWaypoint;
 import dji.sdk.MissionManager.DJIWaypointMission;
 import dji.sdk.Products.DJIAircraft;
@@ -25,7 +26,7 @@ import dji.sdk.base.DJISDKError;
 import fi.oulu.mapcopter.event.CopterConnectionEvent;
 import fi.oulu.mapcopter.event.CopterStatusChangeEvent;
 
-public class DJICopterManager extends CopterManager implements DJISDKManager.DJISDKManagerCallback {
+public class DJICopterManager extends CopterManager implements DJISDKManager.DJISDKManagerCallback, DJIMission.DJIMissionProgressHandler  {
     private static final String TAG = DJICopterManager.class.getSimpleName();
 
     private final Bus eventBus;
@@ -88,6 +89,15 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
                 flightController.setUpdateSystemStateCallback(new DJIFlightControllerDelegate.FlightControllerUpdateSystemStateCallback() {
                     @Override
                     public void onResult(final DJIFlightControllerDataType.DJIFlightControllerCurrentState state) {
+                        int direction = state.getAircraftHeadDirection();
+                        Log.d(TAG, "Head direction: " + direction);
+
+                        if (direction < 0) {
+                            direction = 3600 + direction;
+                        }
+
+                        Log.d(TAG, "Real direction: " + String.format("%.1f", (float) direction / 10));
+
                         if (positionChangeListener != null) {
                             // ensure that the callback is ran in the UI thread
                             if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
@@ -120,47 +130,68 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
         return mProduct != null && mProduct.isConnected();
     }
 
+
+    private void stopMission(final Runnable callback) {
+        if (mProduct != null && mProduct.isConnected()) {
+            DJIMissionManager missionManager = mProduct.getMissionManager();
+            if (missionManager != null && missionManager.isConnected()) {
+                missionManager.stopMissionExecution(new DJIBaseComponent.DJICompletionCallback() {
+                    @Override
+                    public void onResult(DJIError error) {
+                        if (error != null) {
+                            eventBus.post(new CopterStatusChangeEvent("Failed to stop mission: " + error.getDescription()));
+                        } else {
+                            eventBus.post(new CopterStatusChangeEvent("Stopped mission"));
+                        }
+                        callback.run();
+                    }
+                });
+            }
+        }
+    }
+
+
+
     @Override
-    public void moveToPos(double latitude, double longitude) {
-        DJIWaypointMission mission = new DJIWaypointMission();
+    public void moveToPos(final double latitude, final double longitude) {
+        final DJIWaypointMission mission = new DJIWaypointMission();
         mission.maxFlightSpeed = 15;
         mission.autoFlightSpeed = 15;
 
-        LatLng currentPosition = getCurrentPosition();
+        final LatLng currentPosition = getCurrentPosition();
 
-        mission.addWaypoint(new DJIWaypoint(currentPosition.latitude, currentPosition.longitude, getCurrentAltitude()));
-
-        mission.addWaypoint(new DJIWaypoint(latitude, longitude, getCurrentAltitude()));
-
-        mProduct.getMissionManager().prepareMission(mission, new DJIMission.DJIMissionProgressHandler() {
+        stopMission(new Runnable() {
             @Override
-            public void onProgress(DJIMission.DJIProgressType djiProgressType, float v) {
-                Log.d(TAG, "onProgress: mission progress " + v);
+            public void run() {
+                mission.addWaypoint(new DJIWaypoint(currentPosition.latitude, currentPosition.longitude, getCurrentAltitude()));
+                mission.addWaypoint(new DJIWaypoint(latitude, longitude, getCurrentAltitude()));
 
-            }
-        }, new DJIBaseComponent.DJICompletionCallback() {
-            @Override
-            public void onResult(DJIError error) {
-                if (error != null) {
-                    Log.e(TAG, "preparemission error: " + error.getDescription());
-                    eventBus.post(new CopterStatusChangeEvent("Preparemission failed: " + error.getDescription()));
-                } else {
-                    Log.d(TAG, "onResult: preparemission completed");
-                    if (isConnected()) {
-                        mProduct.getMissionManager().startMissionExecution(new DJIBaseComponent.DJICompletionCallback() {
-                            @Override
-                            public void onResult(DJIError error) {
-                                if (error != null) {
-                                    eventBus.post(new CopterStatusChangeEvent("Start mission failed: " + error.getDescription()));
-                                    Log.e(TAG, "Start mission error: " + error.getDescription());
-                                } else {
-                                    eventBus.post(new CopterStatusChangeEvent("Mission started"));
-                                    Log.d(TAG, "Start mission completed");
-                                }
+                mProduct.getMissionManager().prepareMission(mission, DJICopterManager.this, new DJIBaseComponent.DJICompletionCallback() {
+                    @Override
+                    public void onResult(DJIError error) {
+                        if (error != null) {
+                            Log.e(TAG, "preparemission error: " + error.getDescription());
+                            eventBus.post(new CopterStatusChangeEvent("Preparemission failed: " + error.getDescription()));
+                        } else {
+                            Log.d(TAG, "onResult: preparemission completed");
+                            if (isConnected()) {
+                                mProduct.getMissionManager().startMissionExecution(new DJIBaseComponent.DJICompletionCallback() {
+                                    @Override
+                                    public void onResult(DJIError error) {
+                                        if (error != null) {
+                                            eventBus.post(new CopterStatusChangeEvent("Start mission failed: " + error.getDescription()));
+                                            Log.e(TAG, "Start mission error: " + error.getDescription());
+                                        } else {
+                                            eventBus.post(new CopterStatusChangeEvent("Mission started"));
+                                            Log.d(TAG, "Start mission completed");
+                                        }
+                                    }
+                                });
                             }
-                        });
+                        }
                     }
-                }
+                });
+
             }
         });
     }
@@ -219,5 +250,12 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
         }
     };
 
+    /**
+     * Mission progress handler for prepare mission
+     */
+    @Override
+    public void onProgress(DJIMission.DJIProgressType djiProgressType, float progress) {
+        Log.d(TAG, "onProgress: mission progress " + progress + " for type " + djiProgressType.name());
+    }
 }
 
