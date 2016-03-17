@@ -90,25 +90,26 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
                     @Override
                     public void onResult(final DJIFlightControllerDataType.DJIFlightControllerCurrentState state) {
                         int direction = state.getAircraftHeadDirection();
-                        Log.d(TAG, "Head direction: " + direction);
+                        //Log.d(TAG, "Head direction: " + direction);
 
                         if (direction < 0) {
                             direction = 3600 + direction;
                         }
 
-                        Log.d(TAG, "Real direction: " + String.format("%.1f", (float) direction / 10));
+                        //Log.d(TAG, "Real direction: " + String.format("%.1f", (float) direction / 10));
 
                         if (positionChangeListener != null) {
                             // ensure that the callback is ran in the UI thread
                             if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
                                 DJIFlightControllerDataType.DJILocationCoordinate3D location = state.getAircraftLocation();
-                                positionChangeListener.onAircraftPositionChanged(location.getLatitude(), location.getLongitude(), location.getAltitude());
+                                positionChangeListener.onAircraftPositionChanged(location.getLatitude(), location.getLongitude(), location.getAltitude(), direction);
                             } else {
+                                final double directionFinal = direction;
                                 mainThreadHandler.post(new Runnable() {
                                     @Override
                                     public void run() {
                                         DJIFlightControllerDataType.DJILocationCoordinate3D location = state.getAircraftLocation();
-                                        positionChangeListener.onAircraftPositionChanged(location.getLatitude(), location.getLongitude(), location.getAltitude());
+                                        positionChangeListener.onAircraftPositionChanged(location.getLatitude(), location.getLongitude(), location.getAltitude(), directionFinal);
                                     }
                                 });
                             }

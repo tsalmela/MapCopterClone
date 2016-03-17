@@ -105,6 +105,7 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
                 aircraftLocationMarker = mMap.addMarker(new MarkerOptions()
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_aircraft))
+                        .anchor(0.5f, 0.5f)
                         .position(new LatLng(0, 0)));
 
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(lipasto));
@@ -131,9 +132,10 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
     }
 
     @Override
-    public void onAircraftPositionChanged(double latitude, double longitude, float altitude) {
+    public void onAircraftPositionChanged(double latitude, double longitude, float altitude, double rotation) {
         if (aircraftLocationMarker != null) {
             aircraftLocationMarker.setPosition(new LatLng(latitude, longitude));
+            aircraftLocationMarker.setRotation((float) rotation);
         }
     }
 }
