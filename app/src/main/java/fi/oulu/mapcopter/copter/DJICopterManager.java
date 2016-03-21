@@ -26,7 +26,7 @@ import dji.sdk.base.DJISDKError;
 import fi.oulu.mapcopter.event.CopterConnectionEvent;
 import fi.oulu.mapcopter.event.CopterStatusChangeEvent;
 
-public class DJICopterManager extends CopterManager implements DJISDKManager.DJISDKManagerCallback, DJIMission.DJIMissionProgressHandler  {
+public class DJICopterManager extends CopterManager implements DJISDKManager.DJISDKManagerCallback, DJIMission.DJIMissionProgressHandler {
     private static final String TAG = DJICopterManager.class.getSimpleName();
 
     private final Bus eventBus;
@@ -144,13 +144,14 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
                         } else {
                             eventBus.post(new CopterStatusChangeEvent("Stopped mission"));
                         }
-                        callback.run();
+                        if (callback != null) {
+                            callback.run();
+                        }
                     }
                 });
             }
         }
     }
-
 
 
     @Override
@@ -195,6 +196,12 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
 
             }
         });
+    }
+
+    @Override
+    public void stopCopter() {
+        stopMission(null);
+
     }
 
     @Override

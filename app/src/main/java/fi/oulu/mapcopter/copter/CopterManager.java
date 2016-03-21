@@ -30,6 +30,8 @@ public abstract class CopterManager {
 
     public abstract void moveToPos(double latitude, double longitude);
 
+    public abstract void stopCopter();
+
     @NonNull
     public abstract LatLng getCurrentPosition();
 

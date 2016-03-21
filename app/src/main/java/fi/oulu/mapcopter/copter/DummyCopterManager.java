@@ -30,6 +30,11 @@ public class DummyCopterManager extends CopterManager {
         Log.d(TAG, "moveToPos: " + latitude + ":" + longitude);
     }
 
+    @Override
+    public void stopCopter() {
+        Log.d(TAG, "stopping");
+    }
+
     @NonNull
     @Override
     public LatLng getCurrentPosition() {
