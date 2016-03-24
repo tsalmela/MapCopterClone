@@ -30,7 +30,6 @@ import butterknife.OnClick;
 import fi.oulu.mapcopter.copter.AircraftPositionChangeListener;
 import fi.oulu.mapcopter.copter.CameraManager;
 import fi.oulu.mapcopter.copter.CopterManager;
-import fi.oulu.mapcopter.copter.SaveToFileDJICameraManager;
 import fi.oulu.mapcopter.event.CopterConnectionEvent;
 import fi.oulu.mapcopter.event.CopterStatusChangeEvent;
 import fi.oulu.mapcopter.view.TouchableMapFragment;
@@ -132,7 +131,8 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
 
                 drawBoundsRectangle(lipasto.latitude, lipasto.longitude);
 
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(lipasto));
+                //mMap.moveCamera(CameraUpdateFactory.newLatLng(lipasto));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lipasto, 15));
 
                 mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
                     @Override
