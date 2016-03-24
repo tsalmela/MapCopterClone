@@ -13,6 +13,16 @@ public class DummyCopterManager extends CopterManager {
     @Override
     public void initManager() {}
 
+    @Override
+    public int getCompassStatus() {
+        return 0;
+    }
+
+    @Override
+    public void startCompassCalibration() {
+
+    }
+
     @NonNull
     @Override
     public CameraManager getCameraManager() {
@@ -39,5 +49,10 @@ public class DummyCopterManager extends CopterManager {
     @Override
     public LatLng getCurrentPosition() {
         return new LatLng(0, 0);
+    }
+
+    @Override
+    public void stopCompassCalibration() {
+
     }
 }

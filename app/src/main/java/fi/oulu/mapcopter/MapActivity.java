@@ -1,5 +1,6 @@
 package fi.oulu.mapcopter;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -65,9 +66,15 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
 
     @OnClick(R.id.button_stop)
     public void onStopButtonClicked() {
-        mapCopterManager.stopCopter();
-        LatLng target = mMap.getCameraPosition().target;
-        onAircraftPositionChanged(target.latitude, target.longitude, 0, 0);
+        //mapCopterManager.stopCopter();
+        //LatLng target = mMap.getCameraPosition().target;
+        //onAircraftPositionChanged(target.latitude, target.longitude, 0, 0);
+        /*CameraManager cameraManager = mapCopterManager.getCameraManager();
+        if (cameraManager instanceof SaveToFileDJICameraManager) {
+            ((SaveToFileDJICameraManager) cameraManager).save();
+        }*/
+        Intent intent = new Intent(this, CalibrationDialogActivity.class);
+        startActivity(intent);
     }
 
     private void moveToMapCenter() {
@@ -134,8 +141,8 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
                 mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
                     @Override
                     public void onCameraChange(CameraPosition cameraPosition) {
-                        //LatLng currentPosition = mapCopterManager.getCurrentPosition();
-                        LatLng currentPosition = lipasto;
+                        LatLng currentPosition = mapCopterManager.getCurrentPosition();
+                        //LatLng currentPosition = lipasto;
                         double latDifference = cameraPosition.target.latitude - currentPosition.latitude;
                         double longDifference = cameraPosition.target.longitude - currentPosition.longitude;
 
@@ -177,7 +184,6 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
             }
         });
     }
-
 
     @Subscribe
     public void onCopterConnectionChanged(CopterConnectionEvent event) {

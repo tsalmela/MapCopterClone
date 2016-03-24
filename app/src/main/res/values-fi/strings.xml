@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Mapcopter</string>
+
+    <string name="button_stop">Pysäytä</string>
+    <string name="cancel">Peruuta</string>
+
+    <string name="calibration_title">Kompassin kalibrointi</string>
+    <string name="calibration_step1">Vaihe 1: Varmista, että kopterin läheisyydessä ei ole magneetteja tai metalliesineitä. Käännä kopteria 360 astetta vaakatasossa.</string>
+    <string name="calibration_step2">Vaihe 2: Aseta kopteri nokka alaspäin ja ja käännä kopteria 360 astetta uudelleen.</string>
+    <string name="calibration_finished_success">Kalibrointi onnistui</string>
+    <string name="calibration_finished_failure">Kalibrointi epäonnistui</string>
+
+</resources>
