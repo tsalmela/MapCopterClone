@@ -32,10 +32,13 @@ public abstract class CopterManager {
 
     public abstract void stopCopter();
 
+    public abstract int getGPSStatus();
+
     @NonNull
     public abstract LatLng getCurrentPosition();
 
     public void setCopterPositionChangeListener(AircraftPositionChangeListener positionChangeListener) {
         this.positionChangeListener = positionChangeListener;
+
     }
 }

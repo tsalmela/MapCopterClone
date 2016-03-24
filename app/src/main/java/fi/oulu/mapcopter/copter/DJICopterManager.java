@@ -205,6 +205,16 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
     }
 
     @Override
+    public int getGPSStatus() {
+        if (flightController != null){
+            DJIFlightControllerDataType.DJIGPSSignalStatus gpsSignalStatus = flightController.getCurrentState().getGpsSignalStatus();
+
+            return gpsSignalStatus.value();
+        }
+    }
+
+
+    @Override
     public void onGetRegisteredResult(DJIError error) {
         if (error == DJISDKError.REGISTRATION_SUCCESS) {
             Log.i(TAG, "onGetRegisteredResult registration success");
