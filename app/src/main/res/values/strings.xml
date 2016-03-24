@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">Mapcopter</string>
+
     <string name="button_stop">Stop</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="calibration_title">Compass calibration</string>
+    <string name="calibration_step1">Step 1: Make sure no magnets or metal objects are near the compass. Rotate aircraft 360 degrees horizontally.</string>
+    <string name="calibration_step2">Step 2: Face the nose down, then rotate aircraft 360 degrees again.</string>
+    <string name="calibration_finished_success">Calibration succeeded</string>
+    <string name="calibration_finished_failure">Calibration failed</string>
 </resources>

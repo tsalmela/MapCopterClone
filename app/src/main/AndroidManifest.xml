@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="fi.oulu.mapcopter" >
+    package="fi.oulu.mapcopter">
 
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -15,6 +15,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
@@ -31,13 +32,13 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
-        
+        android:theme="@style/AppTheme">
+
         <uses-library android:name="com.android.future.usb.accessory" />
 
         <meta-data
             android:name="com.dji.sdk.API_KEY"
-            android:value="60c80726556638eff869febd"/>
+            android:value="60c80726556638eff869febd" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -45,10 +46,10 @@
 
         <activity
             android:name=".MapActivity"
-            android:screenOrientation="userLandscape"
             android:configChanges="keyboardHidden|screenSize"
             android:label="@string/app_name"
-            android:theme="@style/FullscreenTheme" >
+            android:screenOrientation="userLandscape"
+            android:theme="@style/FullscreenTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -56,12 +57,16 @@
             </intent-filter>
 
             <intent-filter>
-                <action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"/>
+                <action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
             </intent-filter>
+
             <meta-data
                 android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
                 android:resource="@xml/accessory_filter" />
         </activity>
+        <activity
+            android:name=".CalibrationDialogActivity"
+            android:theme="@style/Theme.AppCompat.Dialog"/>
     </application>
 
 </manifest>

@@ -12,7 +12,11 @@ public abstract class CopterManager {
     protected AircraftPositionChangeListener positionChangeListener;
 
     public abstract void initManager();
-    
+
+    public abstract int getCompassStatus();
+
+    public abstract void startCompassCalibration();
+
     public static CopterManager createManager(Context context, Bus eventBus) {
         String arch = System.getProperty("os.arch");
         Log.i(TAG, "DJICameraManager: cpu architecture: " + arch);
@@ -26,7 +30,9 @@ public abstract class CopterManager {
         }
     }
 
-    public abstract @NonNull CameraManager getCameraManager();
+    public abstract
+    @NonNull
+    CameraManager getCameraManager();
 
     public abstract void moveToPos(double latitude, double longitude);
 
@@ -38,4 +44,6 @@ public abstract class CopterManager {
     public void setCopterPositionChangeListener(AircraftPositionChangeListener positionChangeListener) {
         this.positionChangeListener = positionChangeListener;
     }
+
+    public abstract void stopCompassCalibration();
 }

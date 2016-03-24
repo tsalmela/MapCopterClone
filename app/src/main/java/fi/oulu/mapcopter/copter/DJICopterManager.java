@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import dji.sdk.FlightController.DJICompass;
 import dji.sdk.FlightController.DJIFlightController;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -52,6 +53,30 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
                 .initSDKManager(context, this);
     }
 
+    public void startCompassCalibration() {
+        if (flightController != null) {
+            flightController.getCompass().startCompassCalibration(new DJIBaseComponent.DJICompletionCallback() {
+                @Override
+                public void onResult(DJIError djiError) {
+                    Log.d(TAG, "Calibration started ");
+                    if (djiError != null) {
+                        Log.e(TAG, "Error during calibration: " + djiError.getDescription());
+                    }
+                    DJICompass.DJICompassCalibrationStatus calibrationStatus = flightController.getCompass().getCalibrationStatus();
+                    Log.d(TAG, "Calibration status: " + calibrationStatus.name());
+                }
+            });
+        }
+    }
+
+    public int getCompassStatus() {
+        if (flightController != null) {
+            return flightController.getCompass().getCalibrationStatus().value();
+        } else {
+            return -1;
+        }
+    }
+
     @NonNull
     @Override
     public CameraManager getCameraManager() {
@@ -67,6 +92,22 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
         } else {
             Log.w(TAG, "getCurrentPosition called but flight controller is null");
             return new LatLng(0, 0);
+        }
+    }
+
+    @Override
+    public void stopCompassCalibration() {
+        if (flightController != null) {
+            flightController.getCompass().stopCompassCalibration(new DJIBaseComponent.DJICompletionCallback() {
+                @Override
+                public void onResult(DJIError djiError) {
+                    Log.d(TAG, "Stopped calibration");
+                    if (djiError != null) {
+                        Log.e(TAG, "Error stopping calibration: " + djiError);
+                    }
+                    Log.d(TAG, "Calibration status after stop: " + flightController.getCompass().getCalibrationStatus().name());
+                }
+            });
         }
     }
 
