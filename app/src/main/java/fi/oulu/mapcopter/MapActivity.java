@@ -28,7 +28,9 @@ import java.util.List;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import fi.oulu.mapcopter.copter.AircraftPositionChangeListener;
+import fi.oulu.mapcopter.copter.CameraManager;
 import fi.oulu.mapcopter.copter.CopterManager;
+import fi.oulu.mapcopter.copter.SaveToFileDJICameraManager;
 import fi.oulu.mapcopter.event.CopterConnectionEvent;
 import fi.oulu.mapcopter.event.CopterStatusChangeEvent;
 import fi.oulu.mapcopter.view.TouchableMapFragment;
@@ -66,15 +68,9 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
 
     @OnClick(R.id.button_stop)
     public void onStopButtonClicked() {
-        //mapCopterManager.stopCopter();
+        mapCopterManager.stopCopter();
         //LatLng target = mMap.getCameraPosition().target;
         //onAircraftPositionChanged(target.latitude, target.longitude, 0, 0);
-        /*CameraManager cameraManager = mapCopterManager.getCameraManager();
-        if (cameraManager instanceof SaveToFileDJICameraManager) {
-            ((SaveToFileDJICameraManager) cameraManager).save();
-        }*/
-        Intent intent = new Intent(this, CalibrationDialogActivity.class);
-        startActivity(intent);
     }
 
     private void moveToMapCenter() {

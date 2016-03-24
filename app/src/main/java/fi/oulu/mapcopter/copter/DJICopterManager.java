@@ -252,6 +252,7 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
 
             return gpsSignalStatus.value();
         }
+        return DJIFlightControllerDataType.DJIGPSSignalStatus.None.value();
     }
 
 

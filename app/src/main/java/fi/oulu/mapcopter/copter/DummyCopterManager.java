@@ -45,6 +45,11 @@ public class DummyCopterManager extends CopterManager {
         Log.d(TAG, "stopping");
     }
 
+    @Override
+    public int getGPSStatus() {
+        return 0;
+    }
+
     @NonNull
     @Override
     public LatLng getCurrentPosition() {
