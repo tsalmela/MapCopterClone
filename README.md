@@ -26,4 +26,9 @@ you can use ADB through WLAN to avoid switching cables and to see logcat output 
 
 Sometimes ADB loses the connection when plugging in the remote controller,  but you should be able to just reconnect again with `adb connect <ip>`
 
+##### Pro tip: Use the simulator to test your software
+You can test your code on simulator from DJI website.  
+- Link https://developer.dji.com/get-started/mobile-sdk/DJI-PC-Simulator/ 
+ _Notice there is currently  only windows version_ 
+
 
