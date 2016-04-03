@@ -67,7 +67,7 @@
         android:layout_alignParentEnd="true"
         android:layout_marginRight="97dp"
         android:layout_marginEnd="97dp"
-        android:layout_above="@+id/button2">
+        android:layout_alignBottom="@+id/linearLayout">
 
         <TextView
             android:layout_width="wrap_content"
@@ -86,20 +86,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Kalibroi"
-            android:id="@+id/button" />
+            android:id="@+id/calibrationButton" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Ei yhteydessä"
-            android:id="@+id/textView3"
-            android:textColor="@color/abc_primary_text_material_dark"
-            android:textSize="35dp"
-            android:layout_below="@+id/textView2"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+        <ProgressBar
+            android:progressDrawable="@drawable/gps_status"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/progress"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:indeterminateOnly="false"
+            android:max="120"
+            android:progress="0"
+
+            />
+
     </LinearLayout>
+
+
+
 
     <Button
         android:layout_width="wrap_content"

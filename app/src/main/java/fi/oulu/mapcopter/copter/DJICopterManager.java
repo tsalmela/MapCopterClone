@@ -198,8 +198,8 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
     @Override
     public void moveToPos(final double latitude, final double longitude) {
         final DJIWaypointMission mission = new DJIWaypointMission();
-        mission.maxFlightSpeed = 15;
-        mission.autoFlightSpeed = 15;
+        mission.maxFlightSpeed = 10;
+        mission.autoFlightSpeed = 1;
 
         final LatLng currentPosition = getCurrentPosition();
 

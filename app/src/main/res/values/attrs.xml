@@ -9,4 +9,14 @@
         <attr name="metaButtonBarButtonStyle" format="reference" />
     </declare-styleable>
 
+    <declare-styleable name="ProgressBarView">
+        <attr name="bar_color1" format="color"/>
+        <attr name="bar_color2" format="color"/>
+        <attr name="bar_initial_value" format="integer"/>
+        <attr name="bar_num_divisions" format="integer"/>
+        <attr name="bar_height" format="dimension"/>
+        <attr name="bar_spacing" format="dimension"/>
+        <attr name="bar_orientation" format="integer"/>
+    </declare-styleable>
+
 </resources>
