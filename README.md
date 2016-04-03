@@ -29,6 +29,7 @@ Sometimes ADB loses the connection when plugging in the remote controller,  but 
 ##### Pro tip: Use the simulator to test your software
 You can test your code on simulator from DJI website.  
 - Link https://developer.dji.com/get-started/mobile-sdk/DJI-PC-Simulator/ 
- _Notice there is currently  only windows version_ 
+
+ __Notice there is currently  only windows version__ 
 
 
