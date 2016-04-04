@@ -43,6 +43,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-maps:+'
     compile 'com.squareup:otto:+'
     compile 'com.jakewharton:butterknife:7.0.1'
+    compile 'com.h6ah4i.android.widget.verticalseekbar:verticalseekbar:0.6.0'
 
     compile project(':dJISDKLIB')
 }
