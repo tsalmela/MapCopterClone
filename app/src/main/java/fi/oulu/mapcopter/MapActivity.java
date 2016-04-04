@@ -94,11 +94,13 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                textView.setText("Covered: " + progress + "/" + seekBar.getMax());
+                String progressText = ("" + progress).format("%1$-" + 3 + "s", "XXX").replaceAll(" ", "0");
+                textView.setText("Korkeus: " + progressText + "/" + seekBar.getMax());
                 Toast.makeText(getApplicationContext(), "Stopped tracking seekbar", Toast.LENGTH_SHORT).show();
             }
         });
 
+        seekBar.setRotation(270);
 
         mHandler = new Handler(Looper.getMainLooper());
         mCameraView = (TextureView) findViewById(R.id.camera_view);
@@ -124,6 +126,13 @@ public class MapActivity extends AppCompatActivity implements MapCopterRealManag
 
         registerReceiver(mReceiver, filter);
 
+    }
+
+    public static String LPad(String str, Integer length, char car) {
+        return str
+                +
+                String.format("%" + (length - str.length()) + "s", "")
+                        .replace(" ", String.valueOf(car));
     }
 
     // A private method to help us initialize our variables.
