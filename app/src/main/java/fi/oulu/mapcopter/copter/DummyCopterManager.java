@@ -20,7 +20,12 @@ public class DummyCopterManager extends CopterManager {
 
     @Override
     public void startCompassCalibration() {
+        Log.d(TAG, "Dummy calibration start called");
+    }
 
+    @Override
+    public void takeOff() {
+        Log.d(TAG, "Dummy take off called");
     }
 
     @NonNull
@@ -37,17 +42,22 @@ public class DummyCopterManager extends CopterManager {
 
     @Override
     public void moveToPos(double latitude, double longitude) {
-        Log.d(TAG, "moveToPos: " + latitude + ":" + longitude);
+        Log.d(TAG, "dummy moveToPos: " + latitude + ":" + longitude);
     }
 
     @Override
     public void stopCopter() {
-        Log.d(TAG, "stopping");
+        Log.d(TAG, "dummy stopCopter");
     }
 
     @Override
     public int getGPSStatus() {
         return 0;
+    }
+
+    @Override
+    public void setAltitude(float altitude) {
+        Log.d(TAG, "Dummy altitude to " + altitude);
     }
 
     @NonNull

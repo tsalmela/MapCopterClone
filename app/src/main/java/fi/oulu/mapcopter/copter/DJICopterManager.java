@@ -14,10 +14,12 @@ import com.squareup.otto.Bus;
 
 import dji.sdk.FlightController.DJIFlightControllerDataType;
 import dji.sdk.FlightController.DJIFlightControllerDelegate;
+import dji.sdk.MissionManager.DJICustomMission;
 import dji.sdk.MissionManager.DJIMission;
 import dji.sdk.MissionManager.DJIMissionManager;
 import dji.sdk.MissionManager.DJIWaypoint;
 import dji.sdk.MissionManager.DJIWaypointMission;
+import dji.sdk.MissionManager.MissionStep.DJIGoToStep;
 import dji.sdk.Products.DJIAircraft;
 import dji.sdk.SDKManager.DJISDKManager;
 import dji.sdk.base.DJIBaseComponent;
@@ -38,13 +40,16 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
     private DJIFlightController flightController;
     private DJIAircraft aircraft;
 
-    private final DJICameraManager cameraManager;
+    private float missionAltitude;
+
+    private final DJITestFileCameraManager cameraManager;
 
     public DJICopterManager(final Context context, final Bus eventBus) {
         this.eventBus = eventBus;
         this.context = context;
         mainThreadHandler = new Handler(context.getMainLooper());
-        this.cameraManager = new DJICameraManager();
+//        this.cameraManager = new DJICameraManager();
+        this.cameraManager = new DJITestFileCameraManager();
     }
 
     @Override
@@ -90,7 +95,7 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
             DJIFlightControllerDataType.DJILocationCoordinate3D aircraftLocation = flightController.getCurrentState().getAircraftLocation();
             return new LatLng(aircraftLocation.getLatitude(), aircraftLocation.getLongitude());
         } else {
-            Log.w(TAG, "getCurrentPosition called but flight controller is null");
+//            Log.w(TAG, "getCurrentPosition called but flight controller is null");
             return new LatLng(0, 0);
         }
     }
@@ -109,6 +114,12 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
                 }
             });
         }
+    }
+
+    @Override
+    public void setAltitude(float altitude) {
+        Log.d(TAG, "Setting altitude to " + altitude);
+        missionAltitude = altitude;
     }
 
     private float getCurrentAltitude() {
@@ -194,6 +205,22 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
         }
     }
 
+    @Override
+    public void takeOff() {
+        if (isConnected()) {
+            aircraft.getFlightController().takeOff(new DJIBaseComponent.DJICompletionCallback() {
+                @Override
+                public void onResult(DJIError error) {
+                    if (error == null) {
+                        Log.d(TAG, "Take off success");
+                    } else {
+                        eventBus.post(new CopterStatusChangeEvent("Take off failed: " + error.getDescription()));
+                    }
+                }
+            });
+        }
+    }
+
 
     @Override
     public void moveToPos(final double latitude, final double longitude) {
@@ -206,7 +233,13 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
         stopMission(new Runnable() {
             @Override
             public void run() {
-                mission.addWaypoint(new DJIWaypoint(currentPosition.latitude, currentPosition.longitude, getCurrentAltitude()));
+                float altitude;
+                if (missionAltitude <= 0) {
+                    altitude = getCurrentAltitude();
+                } else {
+                    altitude = missionAltitude;
+                }
+                mission.addWaypoint(new DJIWaypoint(currentPosition.latitude, currentPosition.longitude, altitude));
                 mission.addWaypoint(new DJIWaypoint(latitude, longitude, getCurrentAltitude()));
 
                 mProduct.getMissionManager().prepareMission(mission, DJICopterManager.this, new DJIBaseComponent.DJICompletionCallback() {

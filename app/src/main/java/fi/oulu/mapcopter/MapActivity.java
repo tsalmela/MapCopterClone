@@ -45,6 +45,7 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
 
     private Bus eventBus;
     private Polygon boundsPolygon;
+    private SeekBar altitudeBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,10 +57,10 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
 
         final TextView heightText = (TextView) findViewById(R.id.textView);
 
-        SeekBar seekBar = (SeekBar) findViewById(R.id.seekBar);
-        heightText.setText("Korkeus: " + seekBar.getProgress() + "/" + seekBar.getMax());
+        altitudeBar = (SeekBar) findViewById(R.id.seekBar);
+        heightText.setText("Korkeus: " + altitudeBar.getProgress() + "/" + altitudeBar.getMax());
 
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        altitudeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int progress = 0;
 
             @Override
@@ -74,6 +75,7 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
             public void onStopTrackingTouch(SeekBar seekBar) {
                 String progressText = ("" + progress).format("%1$-" + 3 + "s", "XXX").replaceAll(" ", "0");
                 heightText.setText("Korkeus: " + progressText + "/" + seekBar.getMax());
+                mapCopterManager.setAltitude(progress);
                 Toast.makeText(getApplicationContext(), "Stopped tracking seekbar", Toast.LENGTH_SHORT).show();
             }
         });
@@ -141,6 +143,7 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 mMap = googleMap;
+                mMap.setMyLocationEnabled(true);
                 final LatLng lipasto = new LatLng(65.0591, 25.466549);
 
                 destinationMarker = mMap.addMarker(new MarkerOptions()
