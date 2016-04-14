@@ -46,6 +46,7 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
     private Bus eventBus;
     private Polygon boundsPolygon;
     private SeekBar altitudeBar;
+    private TextView heightText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +56,7 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
 
         prepareMap();
 
-        final TextView heightText = (TextView) findViewById(R.id.textView);
+        heightText = (TextView) findViewById(R.id.text_height);
 
         altitudeBar = (SeekBar) findViewById(R.id.seekBar);
         heightText.setText("Korkeus: " + altitudeBar.getProgress() + "/" + altitudeBar.getMax());
@@ -66,6 +67,11 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
             @Override
             public void onProgressChanged(SeekBar seekBar, int progresValue, boolean fromUser) {
                 progress = progresValue;
+                float zoom = (float) (21-((progress-20) / 12.79));
+                mMap.animateCamera( CameraUpdateFactory.zoomTo(zoom));
+                heightText.setText("" + progress);
+
+                Log.d(TAG, "onProgressChanged: setting zoom level to: " + zoom);
             }
 
             @Override
@@ -74,7 +80,8 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 String progressText = ("" + progress).format("%1$-" + 3 + "s", "XXX").replaceAll(" ", "0");
-                heightText.setText("Korkeus: " + progressText + "/" + seekBar.getMax());
+                //heightText.setText("Korkeus: " + progressText + "/" + seekBar.getMax());
+                heightText.setText(""+progress);
                 mapCopterManager.setAltitude(progress);
                 Toast.makeText(getApplicationContext(), "Stopped tracking seekbar", Toast.LENGTH_SHORT).show();
             }
@@ -174,6 +181,8 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
 
                         boolean moveCamera = false;
 
+
+
                         if (latDifference > MAP_BOUNDS_LIMIT_LATITUDE) {
                             moveCamera = true;
                             //Log.d(TAG, "moving camera lat +");
@@ -196,6 +205,20 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
                             //Log.d(TAG, "moving camera long -");
                             newLong = currentPosition.longitude - MAP_BOUNDS_LIMIT_LONGITUDE;
                         }
+                        //Checking if the user zoomed map and saving the zoom value to zoom
+                        // 1,0 zoom = 12,79m
+
+                        float zoom = mMap.getCameraPosition().zoom;
+                        float altitude = (float) ((21 - zoom) * 12.79 + 20);
+                        mapCopterManager.setAltitude(altitude);
+                        heightText.setText("" + altitude);
+                        altitudeBar.setProgress((int) altitude);
+                        Log.d(TAG, "onCameraChange: zoom = " + zoom);
+                        Log.d(TAG, "onCameraChange: progressAltitude: " + altitude);
+
+
+
+
 
                         if (moveCamera) {
                             mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(newLat, newLong)));

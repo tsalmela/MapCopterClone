@@ -42,14 +42,14 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
 
     private float missionAltitude;
 
-    private final DJITestFileCameraManager cameraManager;
+    private final DJICameraManager cameraManager;
 
     public DJICopterManager(final Context context, final Bus eventBus) {
         this.eventBus = eventBus;
         this.context = context;
         mainThreadHandler = new Handler(context.getMainLooper());
 //        this.cameraManager = new DJICameraManager();
-        this.cameraManager = new DJITestFileCameraManager();
+        this.cameraManager = new DJICameraManager();
     }
 
     @Override
@@ -240,7 +240,7 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
                     altitude = missionAltitude;
                 }
                 mission.addWaypoint(new DJIWaypoint(currentPosition.latitude, currentPosition.longitude, altitude));
-                mission.addWaypoint(new DJIWaypoint(latitude, longitude, getCurrentAltitude()));
+                mission.addWaypoint(new DJIWaypoint(latitude, longitude, altitude));
 
                 mProduct.getMissionManager().prepareMission(mission, DJICopterManager.this, new DJIBaseComponent.DJICompletionCallback() {
                     @Override
