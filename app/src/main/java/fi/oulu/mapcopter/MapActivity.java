@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.TextureView;
+import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +26,7 @@ import com.squareup.otto.Subscribe;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import fi.oulu.mapcopter.copter.AircraftPositionChangeListener;
@@ -43,11 +45,22 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
     private GoogleMap mMap;
     private Marker aircraftLocationMarker;
     private Marker destinationMarker;
+    private Marker homeMarker;
 
     private Bus eventBus;
     private Polygon boundsPolygon;
-    private SeekBar altitudeBar;
-    private TextView heightText;
+
+    @Bind(R.id.seekBar)
+    SeekBar altitudeBar;
+
+    @Bind(R.id.text_height)
+    TextView heightText;
+
+    @Bind(R.id.target_marker)
+    View targetMarker1;
+    @Bind(R.id.target_marker2)
+    View targetMarker2;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,9 +70,6 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
 
         prepareMap();
 
-        heightText = (TextView) findViewById(R.id.text_height);
-
-        altitudeBar = (SeekBar) findViewById(R.id.seekBar);
         heightText.setText("Korkeus: " + altitudeBar.getProgress() + "/" + altitudeBar.getMax());
 
         altitudeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -68,10 +78,10 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
             @Override
             public void onProgressChanged(SeekBar seekBar, int progresValue, boolean fromUser) {
 
-                if(fromUser){
+                if (fromUser) {
                     progress = progresValue;
-                    float zoom = (float) (21-((progress-20) / 12.79));
-                    mMap.animateCamera( CameraUpdateFactory.zoomTo(zoom));
+                    float zoom = (float) (21 - ((progress - 20) / 12.79));
+                    mMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
                     heightText.setText("" + progress);
                     Log.d(TAG, "onProgressChanged: setting zoom level to: " + zoom);
                 }
@@ -79,13 +89,14 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 String progressText = ("" + progress).format("%1$-" + 3 + "s", "XXX").replaceAll(" ", "0");
                 //heightText.setText("Korkeus: " + progressText + "/" + seekBar.getMax());
-                heightText.setText(""+ progress);
+                heightText.setText("" + progress);
                 mapCopterManager.setAltitude(progress);
                 Toast.makeText(getApplicationContext(), "Stopped tracking seekbar", Toast.LENGTH_SHORT).show();
             }
@@ -134,6 +145,8 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
     private void onMapTouchEnd() {
         LatLng centerOfMap = mMap.getCameraPosition().target;
         Log.d(TAG, centerOfMap.toString());
+        targetMarker1.setVisibility(View.INVISIBLE);
+        targetMarker2.setVisibility(View.INVISIBLE);
         moveToMapCenter();
     }
 
@@ -143,6 +156,8 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
         mapFragment.setTouchListener(new TouchableMapFragment.TouchListener() {
             @Override
             public void onTouchStart() {
+                targetMarker1.setVisibility(View.VISIBLE);
+                targetMarker2.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -175,7 +190,7 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
                 drawBoundsRectangle(lipasto.latitude, lipasto.longitude);
 
                 //mMap.moveCamera(CameraUpdateFactory.newLatLng(lipasto));
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lipasto, 15));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lipasto, 18));
 
                 mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
                     @Override
@@ -195,7 +210,6 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
                         double newLat = cameraPosition.target.latitude;
 
                         boolean moveCamera = false;
-
 
 
                         if (latDifference > MAP_BOUNDS_LIMIT_LATITUDE) {
@@ -226,13 +240,10 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
                         float zoom = mMap.getCameraPosition().zoom;
                         float altitude = (float) ((21 - zoom) * 12.79 + 20);
                         mapCopterManager.setAltitude(altitude);
-                        heightText.setText("" + (int)altitude);
+                        heightText.setText("" + (int) altitude);
                         altitudeBar.setProgress((int) altitude);
                         Log.d(TAG, "onCameraChange: zoom = " + zoom);
                         Log.d(TAG, "onCameraChange: progressAltitude: " + altitude);
-
-
-
 
 
                         if (moveCamera) {
@@ -248,6 +259,19 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
     public void onCopterConnectionChanged(CopterConnectionEvent event) {
         if (event.isConnected()) {
             displayToast("Connected to aircraft");
+            mapCopterManager.getHomePosition(new CopterManager.HomePositionCallback() {
+                @Override
+                public void onSuccess(double latitude, double longitude) {
+                    if (mMap == null) {
+                        return;
+                    }
+                    if (homeMarker == null) {
+                        homeMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)));
+                    } else {
+                        homeMarker.setPosition(new LatLng(latitude, longitude));
+                    }
+                }
+            });
         } else {
             displayToast("Disconnected from aircraft");
         }

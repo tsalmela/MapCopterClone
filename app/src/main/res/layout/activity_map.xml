@@ -79,6 +79,22 @@
 
 
         </LinearLayout>
+        <View
+            android:id="@+id/target_marker"
+            android:layout_height="10dp"
+            android:layout_width="2dp"
+            android:background="@android:color/black"
+            android:layout_centerInParent="true"
+            android:visibility="invisible"
+            />
+        <View
+            android:id="@+id/target_marker2"
+            android:layout_height="2dp"
+            android:layout_width="10dp"
+            android:background="@android:color/black"
+            android:layout_centerInParent="true"
+            android:visibility="invisible"
+            />
     </RelativeLayout>
 
     <ViewAnimator
