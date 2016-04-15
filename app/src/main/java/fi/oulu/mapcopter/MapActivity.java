@@ -67,12 +67,15 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progresValue, boolean fromUser) {
-                progress = progresValue;
-                float zoom = (float) (21-((progress-20) / 12.79));
-                mMap.animateCamera( CameraUpdateFactory.zoomTo(zoom));
-                heightText.setText("" + progress);
 
-                Log.d(TAG, "onProgressChanged: setting zoom level to: " + zoom);
+                if(fromUser){
+                    progress = progresValue;
+                    float zoom = (float) (21-((progress-20) / 12.79));
+                    mMap.animateCamera( CameraUpdateFactory.zoomTo(zoom));
+                    heightText.setText("" + progress);
+                    Log.d(TAG, "onProgressChanged: setting zoom level to: " + zoom);
+                }
+
             }
 
             @Override
@@ -177,10 +180,11 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
                 mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
                     @Override
                     public void onCameraChange(CameraPosition cameraPosition) {
-                        //Switch the value between lipasto and .getCurrentPosition() to debugg on land
 
-                        LatLng currentPosition = mapCopterManager.getCurrentPosition();
-                        //LatLng currentPosition = lipasto;
+                        //TODO: Switch the value between lipasto and .getCurrentPosition() to debugg on land without connection to copter
+
+                        //LatLng currentPosition = mapCopterManager.getCurrentPosition();
+                        LatLng currentPosition = lipasto;
 
                         double latDifference = cameraPosition.target.latitude - currentPosition.latitude;
                         double longDifference = cameraPosition.target.longitude - currentPosition.longitude;
