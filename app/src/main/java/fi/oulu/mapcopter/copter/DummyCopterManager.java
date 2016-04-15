@@ -70,4 +70,9 @@ public class DummyCopterManager extends CopterManager {
     public void stopCompassCalibration() {
 
     }
+
+    @Override
+    public void getHomePosition(final DJICopterManager.HomePositionCallback callback) {
+
+    }
 }

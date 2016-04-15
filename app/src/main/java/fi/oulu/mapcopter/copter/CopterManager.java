@@ -53,4 +53,11 @@ public abstract class CopterManager {
     }
 
     public abstract void stopCompassCalibration();
+
+    public abstract void getHomePosition(final DJICopterManager.HomePositionCallback callback);
+
+
+    public interface HomePositionCallback {
+        void onSuccess(double latitude, double longitude);
+    }
 }

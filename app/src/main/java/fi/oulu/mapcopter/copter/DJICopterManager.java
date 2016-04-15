@@ -116,6 +116,26 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
         }
     }
 
+
+    @Override
+    public void getHomePosition(final HomePositionCallback callback) {
+        if (flightController != null) {
+            flightController.getHomeLocation(new DJIBaseComponent.DJICompletionCallbackWith<DJIFlightControllerDataType.DJILocationCoordinate2D>() {
+                @Override
+                public void onSuccess(DJIFlightControllerDataType.DJILocationCoordinate2D location) {
+                    if (callback != null) {
+                        callback.onSuccess(location.getLatitude(), location.getLongitude());
+                    }
+                }
+
+                @Override
+                public void onFailure(DJIError djiError) {
+
+                }
+            });
+        }
+    }
+
     @Override
     public void setAltitude(float altitude) {
         Log.d(TAG, "Setting altitude to " + altitude);
