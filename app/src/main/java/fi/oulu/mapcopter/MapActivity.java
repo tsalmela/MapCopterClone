@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -81,7 +82,7 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
             public void onStopTrackingTouch(SeekBar seekBar) {
                 String progressText = ("" + progress).format("%1$-" + 3 + "s", "XXX").replaceAll(" ", "0");
                 //heightText.setText("Korkeus: " + progressText + "/" + seekBar.getMax());
-                heightText.setText(""+progress);
+                heightText.setText(""+ progress);
                 mapCopterManager.setAltitude(progress);
                 Toast.makeText(getApplicationContext(), "Stopped tracking seekbar", Toast.LENGTH_SHORT).show();
             }
@@ -111,7 +112,7 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
             LatLng target = mMap.getCameraPosition().target;
             destinationMarker.setPosition(target);
             mapCopterManager.moveToPos(target.latitude, target.longitude);
-            displayToast("Moving to " + target.toString());
+            //displayToast("Moving to " + target.toString());
         }
     }
 
@@ -150,7 +151,14 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 mMap = googleMap;
-                mMap.setMyLocationEnabled(true);
+
+                //Hiding the top right corner "my location button"
+                mMap.getUiSettings().setMyLocationButtonEnabled(false);
+                //Disabling rotate gestures for the map
+                mMap.getUiSettings().setRotateGesturesEnabled(false);
+
+                mMap.setMyLocationEnabled(false);
+
                 final LatLng lipasto = new LatLng(65.0591, 25.466549);
 
                 destinationMarker = mMap.addMarker(new MarkerOptions()
@@ -169,8 +177,11 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
                 mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
                     @Override
                     public void onCameraChange(CameraPosition cameraPosition) {
+                        //Switch the value between lipasto and .getCurrentPosition() to debugg on land
+
                         LatLng currentPosition = mapCopterManager.getCurrentPosition();
                         //LatLng currentPosition = lipasto;
+
                         double latDifference = cameraPosition.target.latitude - currentPosition.latitude;
                         double longDifference = cameraPosition.target.longitude - currentPosition.longitude;
 
@@ -205,13 +216,13 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
                             //Log.d(TAG, "moving camera long -");
                             newLong = currentPosition.longitude - MAP_BOUNDS_LIMIT_LONGITUDE;
                         }
+
                         //Checking if the user zoomed map and saving the zoom value to zoom
                         // 1,0 zoom = 12,79m
-
                         float zoom = mMap.getCameraPosition().zoom;
                         float altitude = (float) ((21 - zoom) * 12.79 + 20);
                         mapCopterManager.setAltitude(altitude);
-                        heightText.setText("" + altitude);
+                        heightText.setText("" + (int)altitude);
                         altitudeBar.setProgress((int) altitude);
                         Log.d(TAG, "onCameraChange: zoom = " + zoom);
                         Log.d(TAG, "onCameraChange: progressAltitude: " + altitude);
