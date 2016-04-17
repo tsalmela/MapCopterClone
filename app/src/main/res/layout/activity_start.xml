@@ -93,6 +93,17 @@
                     style="@style/startActivityTexts"
                     android:text="GPS:" />
 
+                <ProgressBar
+                    android:progressDrawable="@drawable/gps_status"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="8dp"
+                    android:id="@+id/progress"
+                    style="@android:style/Widget.ProgressBar.Horizontal"
+                    android:indeterminateOnly="false"
+                    android:max="120"
+                    android:progress="0"
+                    />
 
             </LinearLayout>
 
@@ -123,20 +134,6 @@
                     android:layout_marginBottom="1dp"/>
             </LinearLayout>
             <!-- TEKSTIT LOPPU -->
-
-
-        <ProgressBar
-            android:progressDrawable="@drawable/gps_status"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/progress"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:indeterminateOnly="false"
-            android:max="120"
-            android:progress="0"
-
-            />
-
     </LinearLayout>
 
         <LinearLayout
