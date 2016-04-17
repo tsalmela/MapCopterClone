@@ -67,6 +67,7 @@ public class StartActivity extends AppCompatActivity {
 
                 Intent myIntent = new Intent(StartActivity.this, MapActivity.class);
                 StartActivity.this.startActivity(myIntent);
+                MapCopterApplication.getCopterManager().takeOff();
 
             }
         });
