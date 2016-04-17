@@ -71,6 +71,10 @@
         <activity
             android:name=".CalibrationDialogActivity"
             android:theme="@style/Theme.AppCompat.Dialog"/>
+        <activity
+            android:name=".RemoteInfoDialogActivity"
+            android:theme="@style/Theme.AppCompat.Dialog"/>
+
     </application>
 
 </manifest>
