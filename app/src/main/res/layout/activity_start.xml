@@ -44,12 +44,12 @@
             android:orientation="vertical">
 
             <!--TextViewit Kopterille, Kompassille, GPS ja etäyhteydelle. -->
-            <!-- TODO: Jokaiselle oma linearLayout! -->
             <LinearLayout
                 android:id="@+id/copterLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="50dp"
+                android:layout_marginBottom="10dp"
                 android:orientation="horizontal">
 
                 <TextView
@@ -87,7 +87,8 @@
                 android:id="@+id/gpsLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginTop="5dp">
 
                 <TextView
                     style="@style/startActivityTexts"
