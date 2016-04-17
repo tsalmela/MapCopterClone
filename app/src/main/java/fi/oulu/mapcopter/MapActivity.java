@@ -198,8 +198,8 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
 
                         //TODO: Switch the value between lipasto and .getCurrentPosition() to debugg on land without connection to copter
 
-                        //LatLng currentPosition = mapCopterManager.getCurrentPosition();
-                        LatLng currentPosition = lipasto;
+                        LatLng currentPosition = mapCopterManager.getCurrentPosition();
+                        //LatLng currentPosition = lipasto;
 
                         double latDifference = cameraPosition.target.latitude - currentPosition.latitude;
                         double longDifference = cameraPosition.target.longitude - currentPosition.longitude;
