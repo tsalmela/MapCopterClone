@@ -32,6 +32,17 @@ import fi.oulu.mapcopter.event.CopterStatusChangeEvent;
 public class DJICopterManager extends CopterManager implements DJISDKManager.DJISDKManagerCallback, DJIMission.DJIMissionProgressHandler {
     private static final String TAG = DJICopterManager.class.getSimpleName();
 
+    /**
+     * The mission speed can be changed with the control stick
+     * in the remote controller up to this maximum speed
+     */
+    public static final int MISSION_MAX_FLIGHT_SPEED = 7;
+
+    /**
+     * The starting speed for the waypoint missions
+     */
+    public static final int MISSION_FLIGHT_SPEED = 1;
+
     private final Bus eventBus;
     private Context context;
     private Handler mainThreadHandler;
@@ -245,8 +256,8 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
     @Override
     public void moveToPos(final double latitude, final double longitude) {
         final DJIWaypointMission mission = new DJIWaypointMission();
-        mission.maxFlightSpeed = 15;
-        mission.autoFlightSpeed = 15;
+        mission.maxFlightSpeed = MISSION_MAX_FLIGHT_SPEED;
+        mission.autoFlightSpeed = MISSION_FLIGHT_SPEED;
 
         final LatLng currentPosition = getCurrentPosition();
 
