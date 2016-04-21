@@ -182,6 +182,7 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
         if (product instanceof DJIAircraft) {
             aircraft = (DJIAircraft) mProduct;
             flightController = aircraft.getFlightController();
+            updateBattery();
 
             if (flightController != null) {
                 flightController.setUpdateSystemStateCallback(new DJIFlightControllerDelegate.FlightControllerUpdateSystemStateCallback() {
