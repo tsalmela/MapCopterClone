@@ -3,6 +3,7 @@ package fi.oulu.mapcopter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.SeekBar;
@@ -69,6 +70,14 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
         ButterKnife.bind(this);
 
         prepareMap();
+
+        View clickInterceptor=findViewById(R.id.SeekBarClickInterceptor);
+        clickInterceptor.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return true;
+            }
+        });
 
         heightText.setText("Korkeus: " + altitudeBar.getProgress() + "/" + altitudeBar.getMax());
 
