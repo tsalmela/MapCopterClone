@@ -151,7 +151,6 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
 
     @Override
     public void setAltitude(float altitude) {
-        Log.d(TAG, "Setting altitude to " + altitude);
         missionAltitude = altitude;
     }
 

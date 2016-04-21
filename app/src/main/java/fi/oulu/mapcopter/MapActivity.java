@@ -92,15 +92,12 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progresValue, boolean fromUser) {
-
                 if (fromUser) {
                     progress = progresValue;
                     float zoom = (float) (21 - ((progress - 20) / 12.79));
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
                     heightText.setText("" + progress);
-                    Log.d(TAG, "onProgressChanged: setting zoom level to: " + zoom);
                 }
-
             }
 
             @Override
@@ -207,6 +204,8 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
                 //mMap.moveCamera(CameraUpdateFactory.newLatLng(lipasto));
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lipasto, 18));
 
+                updateHomePositionMarker();
+
                 mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
                     @Override
                     public void onCameraChange(CameraPosition cameraPosition) {
@@ -257,9 +256,6 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
                         mapCopterManager.setAltitude(altitude);
                         heightText.setText("" + (int) altitude);
                         altitudeBar.setProgress((int) altitude);
-                        Log.d(TAG, "onCameraChange: zoom = " + zoom);
-                        Log.d(TAG, "onCameraChange: progressAltitude: " + altitude);
-
 
                         if (moveCamera) {
                             mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(newLat, newLong)));
@@ -274,22 +270,34 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
     public void onCopterConnectionChanged(CopterConnectionEvent event) {
         if (event.isConnected()) {
             displayToast("Connected to aircraft");
-            mapCopterManager.getHomePosition(new CopterManager.HomePositionCallback() {
-                @Override
-                public void onSuccess(double latitude, double longitude) {
-                    if (mMap == null) {
-                        return;
-                    }
-                    if (homeMarker == null) {
-                        homeMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)));
-                    } else {
-                        homeMarker.setPosition(new LatLng(latitude, longitude));
-                    }
-                }
-            });
+            updateHomePositionMarker();
         } else {
             displayToast("Disconnected from aircraft");
         }
+    }
+
+    private void updateHomePositionMarker() {
+        mapCopterManager.getHomePosition(new CopterManager.HomePositionCallback() {
+            @Override
+            public void onSuccess(final double latitude, final double longitude) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mMap == null) {
+                            return;
+                        }
+                        if (homeMarker == null) {
+                            homeMarker = mMap.addMarker(new MarkerOptions()
+                                    .position(new LatLng(latitude, longitude))
+                                    .anchor(0.5f, 0.5f)
+                                    .icon(BitmapDescriptorFactory.fromResource(android.R.drawable.ic_menu_mylocation)));
+                        } else {
+                            homeMarker.setPosition(new LatLng(latitude, longitude));
+                        }
+                    }
+                });
+            }
+        });
     }
 
     @Subscribe
