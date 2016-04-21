@@ -32,6 +32,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import fi.oulu.mapcopter.copter.AircraftPositionChangeListener;
 import fi.oulu.mapcopter.copter.CopterManager;
+import fi.oulu.mapcopter.event.BatteryChangeEvent;
 import fi.oulu.mapcopter.event.CopterConnectionEvent;
 import fi.oulu.mapcopter.event.CopterStatusChangeEvent;
 import fi.oulu.mapcopter.view.TouchableMapFragment;
@@ -41,6 +42,7 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
     private static final String TAG = MapActivity.class.getSimpleName();
     public static final double MAP_BOUNDS_LIMIT_LATITUDE = 0.0035;
     public static final double MAP_BOUNDS_LIMIT_LONGITUDE = 0.01;
+
 
     private CopterManager mapCopterManager;
     private GoogleMap mMap;
@@ -61,6 +63,9 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
     View targetMarker1;
     @Bind(R.id.target_marker2)
     View targetMarker2;
+
+    @Bind(R.id.battery)
+    TextView batteryText;
 
 
     @Override
@@ -287,6 +292,12 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
     }
 
     @Subscribe
+    public void onBatteryChange(BatteryChangeEvent event) {
+        int batteryRemaining = event.getBatteryPercentage();
+        batteryText.setText("Battery:"+batteryRemaining);
+    }
+
+    @Subscribe
     public void onCopterStatusChanged(CopterStatusChangeEvent event) {
         displayToast(event.getMessage());
     }
@@ -325,5 +336,8 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
 
             }
         }
+
+
     }
 }
+

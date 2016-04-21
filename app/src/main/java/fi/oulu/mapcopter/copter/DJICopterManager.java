@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import dji.sdk.Battery.DJIBattery;
 import dji.sdk.FlightController.DJICompass;
 import dji.sdk.FlightController.DJIFlightController;
 
@@ -26,6 +27,7 @@ import dji.sdk.base.DJIBaseComponent;
 import dji.sdk.base.DJIBaseProduct;
 import dji.sdk.base.DJIError;
 import dji.sdk.base.DJISDKError;
+import fi.oulu.mapcopter.event.BatteryChangeEvent;
 import fi.oulu.mapcopter.event.CopterConnectionEvent;
 import fi.oulu.mapcopter.event.CopterStatusChangeEvent;
 
@@ -162,6 +164,19 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
             return 0;
         }
     }
+
+
+    private void updateBattery() {
+        if (mProduct != null) {
+            mProduct.getBattery().setBatteryStateUpdateCallback(new DJIBattery.DJIBatteryStateUpdateCallback() {
+                @Override
+                public void onResult(DJIBattery.DJIBatteryState djiBatteryState) {
+                    eventBus.post(new BatteryChangeEvent(djiBatteryState.getBatteryEnergyRemainingPercent()));
+                }
+            });
+        }
+    }
+
 
     private void initProduct(DJIBaseProduct product) {
         if (product instanceof DJIAircraft) {
@@ -311,7 +326,7 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
 
     @Override
     public int getGPSStatus() {
-        if (flightController != null){
+        if (flightController != null) {
             DJIFlightControllerDataType.DJIGPSSignalStatus gpsSignalStatus = flightController.getCurrentState().getGpsSignalStatus();
 
             return gpsSignalStatus.value();
