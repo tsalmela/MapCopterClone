@@ -1,5 +1,6 @@
 package fi.oulu.mapcopter;
 
+import android.graphics.SurfaceTexture;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -84,7 +85,7 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
             }
         });
 
-        heightText.setText("Korkeus: " + altitudeBar.getProgress() + "/" + altitudeBar.getMax());
+        heightText.setText("" + altitudeBar.getProgress());
 
         altitudeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int progress = 0;
