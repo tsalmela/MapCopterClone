@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -22,13 +21,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="Mapcopter"
+            android:text="@string/activity_start_text_mapcopter"
             android:textColor="@android:color/holo_green_dark"
-            android:textSize="42sp"/>
+            android:textSize="42sp" />
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@string/start_activity_mapcopter_logo_contentDescreption"
             android:src="@mipmap/ic_launcher" />
     </LinearLayout>
 
@@ -43,23 +43,22 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <!--TextViewit Kopterille, Kompassille, GPS ja etäyhteydelle. -->
             <LinearLayout
                 android:id="@+id/copterLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="50dp"
                 android:layout_marginBottom="10dp"
+                android:layout_marginTop="50dp"
                 android:orientation="horizontal">
 
                 <TextView
                     style="@style/startActivityTexts"
-                    android:text="Kopteri:" />
+                    android:text="@string/start_activity_copter" />
 
                 <TextView
                     android:id="@+id/textView_Connection"
                     style="@style/startActivityTexts"
-                    android:text="Ei yhteydessä" />
+                    android:text="@string/activity_start_text_not_connected" />
 
 
             </LinearLayout>
@@ -72,13 +71,13 @@
 
                 <TextView
                     style="@style/startActivityTexts"
-                    android:text="Kompassi:" />
+                    android:text="@string/start_activity_text_compass" />
 
                 <Button
                     android:id="@+id/button_calibrate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Kalibroi" />
+                    android:text="@string/start_activity_text_calibrate" />
 
 
             </LinearLayout>
@@ -87,67 +86,67 @@
                 android:id="@+id/gpsLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="5dp">
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal">
 
                 <TextView
                     style="@style/startActivityTexts"
-                    android:text="GPS:" />
+                    android:text="@string/start_activity_text_GPS" />
 
                 <ProgressBar
-                    android:progressDrawable="@drawable/gps_status"
+                    android:id="@+id/progress"
+                    style="@android:style/Widget.ProgressBar.Horizontal"
                     android:layout_width="150dp"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="8dp"
-                    android:id="@+id/progress"
-                    style="@android:style/Widget.ProgressBar.Horizontal"
                     android:indeterminateOnly="false"
                     android:max="120"
                     android:progress="0"
-                    />
+                    android:progressDrawable="@drawable/gps_status" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/remoteAccessLayout"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:layout_height="0dp"
                 android:layout_weight="1"
-                android:gravity="bottom">
+                android:gravity="bottom"
+                android:orientation="horizontal">
 
                 <ImageView
                     android:id="@+id/button_remoteAccessInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:contentDescription="@string/start_activity_questionmark_logo_contentDescreption"
                     android:src="@android:drawable/ic_menu_help"
-                    android:tint="#e7ff1870"
-                    android:layout_marginBottom="5dp"/>
+                    android:tint="#e7ff1870" />
 
                 <TextView
                     style="@style/startActivityTexts"
-                    android:text="Etäkäyttö:" />
+                    android:text="@string/start_activity_text_remoteaccess" />
 
                 <CheckBox
                     android:id="@+id/remoteAccessCheckbox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="1dp"/>
+                    android:layout_marginBottom="1dp" />
             </LinearLayout>
-            <!-- TEKSTIT LOPPU -->
-    </LinearLayout>
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="bottom|right"
+            android:gravity="bottom|end"
             android:orientation="horizontal">
 
             <Button
                 android:id="@+id/buttonStart"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Lentoon!!" />
+                android:text="@string/activity_start_button_take_off" />
 
 
         </LinearLayout>

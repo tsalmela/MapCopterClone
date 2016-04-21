@@ -2,10 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="500dp"
     android:layout_height="400dp"
-    android:orientation="vertical"
+    android:focusable="true"
     android:focusableInTouchMode="true"
-    android:focusable="true">
-
+    android:orientation="vertical">
 
 
     <LinearLayout
@@ -17,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            android:text="Etäohjaus mahdollistaa kopterin videokuvan katselun ja/tai ohjaamisen etänä wwww pavelun yli. Voit syöttää alas serverin IP osoitteen jota käytät videokuvan/käskyjen välittämiseen." />
+            android:text="@string/remote_access_info_main_text" />
 
 
     </LinearLayout>
@@ -28,66 +27,51 @@
         android:orientation="horizontal">
 
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/editText_remote_access_IP"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:layout_margin="16dp"
+                android:hint="@string/remote_access_info_hint_text" />
+        </android.support.design.widget.TextInputLayout>
+
+
+    </LinearLayout>
+
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/radioButton_remoteWatch"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:text="@string/remote_access_info_text_radio_button_remotewatch" />
 
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+        <RadioButton
+            android:id="@+id/radioButton_remoteControl"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/remote_access_info_radiobutton_remoteControl" />
 
-                <EditText
-                    android:id="@+id/editText_remote_access_IP"
-                    android:layout_width="200dp"
-                    android:layout_height="50dp"
-                    android:layout_margin="16dp"
-                    android:hint="INSERT IP ADDRESS HERE!" />
-            </android.support.design.widget.TextInputLayout>
+    </RadioGroup>
 
-        </LinearLayout>
-
-
-    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-
-         <RadioGroup
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content">
-
-            <RadioButton
-                android:id="@+id/radioButton_remoteWatch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Salli pelkkä kuva"/>
-
-            <RadioButton
-                android:id="@+id/radioButton_remoteControl"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Salli etäkäyttö"/>
-
-         </RadioGroup>
-
-
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="bottom|right">
+        android:gravity="bottom|end">
 
         <Button
             android:id="@+id/button_remoteAccess_ok"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="OK" />
+            android:text="@string/remote_access_info_button_ok" />
 
     </LinearLayout>
 
