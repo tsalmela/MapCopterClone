@@ -279,14 +279,23 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
         stopMission(new Runnable() {
             @Override
             public void run() {
-                float altitude;
+                float newAltitude;
+                float currentAltitude = getCurrentAltitude();
                 if (missionAltitude <= 0) {
-                    altitude = getCurrentAltitude();
+                    newAltitude = currentAltitude;
                 } else {
-                    altitude = missionAltitude;
+                    newAltitude = missionAltitude;
                 }
-                mission.addWaypoint(new DJIWaypoint(currentPosition.latitude, currentPosition.longitude, altitude));
-                mission.addWaypoint(new DJIWaypoint(latitude, longitude, altitude));
+
+                if (newAltitude > currentAltitude) {
+                    mission.addWaypoint(new DJIWaypoint(currentPosition.latitude, currentPosition.longitude, newAltitude));
+                    mission.addWaypoint(new DJIWaypoint(latitude, longitude, newAltitude));
+                } else {
+                    mission.addWaypoint(new DJIWaypoint(currentPosition.latitude, currentPosition.longitude, currentAltitude));
+                    mission.addWaypoint(new DJIWaypoint(latitude, longitude, currentAltitude));
+                    mission.addWaypoint(new DJIWaypoint(latitude, longitude, newAltitude));
+                }
+
 
                 mProduct.getMissionManager().prepareMission(mission, DJICopterManager.this, new DJIBaseComponent.DJICompletionCallback() {
                     @Override
