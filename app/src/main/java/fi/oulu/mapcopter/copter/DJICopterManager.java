@@ -13,6 +13,9 @@ import dji.sdk.FlightController.DJIFlightController;
 import com.google.android.gms.maps.model.LatLng;
 import com.squareup.otto.Bus;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import dji.sdk.FlightController.DJIFlightControllerDataType;
 import dji.sdk.FlightController.DJIFlightControllerDelegate;
 import dji.sdk.MissionManager.DJICustomMission;
@@ -21,6 +24,8 @@ import dji.sdk.MissionManager.DJIMissionManager;
 import dji.sdk.MissionManager.DJIWaypoint;
 import dji.sdk.MissionManager.DJIWaypointMission;
 import dji.sdk.MissionManager.MissionStep.DJIGoToStep;
+import dji.sdk.MissionManager.MissionStep.DJIMissionStep;
+import dji.sdk.MissionManager.MissionStep.DJIWaypointStep;
 import dji.sdk.Products.DJIAircraft;
 import dji.sdk.SDKManager.DJISDKManager;
 import dji.sdk.base.DJIBaseComponent;
@@ -164,6 +169,22 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
         }
     }
 
+    /**
+     * Locks aircraft attitude so that it doesn't turn towards the waypoint
+     * but stays always pointed towards north.
+     */
+    private void lockAttitude() {
+        if (aircraft != null) {
+            aircraft.getFlightController().lockCourseUsingCurrentDirection(new DJIBaseComponent.DJICompletionCallback() {
+                @Override
+                public void onResult(DJIError djiError) {
+                    if (djiError != null) {
+                        Log.d(TAG, "Successfully set course lock");
+                    }
+                }
+            });
+        }
+    }
 
     private void updateBattery() {
         if (mProduct != null) {
@@ -287,15 +308,25 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
                     newAltitude = missionAltitude;
                 }
 
-                if (newAltitude > currentAltitude) {
-                    mission.addWaypoint(new DJIWaypoint(currentPosition.latitude, currentPosition.longitude, newAltitude));
-                    mission.addWaypoint(new DJIWaypoint(latitude, longitude, newAltitude));
-                } else {
-                    mission.addWaypoint(new DJIWaypoint(currentPosition.latitude, currentPosition.longitude, currentAltitude));
-                    mission.addWaypoint(new DJIWaypoint(latitude, longitude, currentAltitude));
-                    mission.addWaypoint(new DJIWaypoint(latitude, longitude, newAltitude));
-                }
+                DJIWaypoint finalWp = new DJIWaypoint(latitude, longitude, newAltitude);
+                finalWp.heading = 0;
+                float altitudeDifference = Math.abs(newAltitude - currentAltitude);
 
+                if (newAltitude > currentAltitude || altitudeDifference < 3) {
+                    DJIWaypoint wp1 = new DJIWaypoint(currentPosition.latitude, currentPosition.longitude, newAltitude);
+                    wp1.heading = 0;
+                    mission.addWaypoint(wp1);
+                } else {
+                    DJIWaypoint wp1 = new DJIWaypoint(currentPosition.latitude, currentPosition.longitude, currentAltitude);
+                    DJIWaypoint wp2 = new DJIWaypoint(latitude, longitude, currentAltitude);
+                    wp1.heading = 0;
+                    wp2.heading = 0;
+                    mission.addWaypoint(wp1);
+                    mission.addWaypoint(wp2);
+
+                }
+                mission.addWaypoint(finalWp);
+                mission.headingMode = DJIWaypointMission.DJIWaypointMissionHeadingMode.UsingWaypointHeading;
 
                 mProduct.getMissionManager().prepareMission(mission, DJICopterManager.this, new DJIBaseComponent.DJICompletionCallback() {
                     @Override
