@@ -48,4 +48,5 @@ You can test your code on simulator from DJI website.
 
  __Notice there is currently  only windows version__ 
 
-
+#### Notes & known problems
+- YOu can increase the flying speed using left thumbstick. Pushing it up increases the speed while pushing it down decreases it. However if you are using it when quadcopter is not performing a mission, it will just fly forward. Be carefull and wait for the mission to start before incresing the speed!
