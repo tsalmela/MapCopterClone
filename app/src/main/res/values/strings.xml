@@ -10,4 +10,19 @@
     <string name="calibration_step2">Step 2: Face the nose down, then rotate aircraft 360 degrees again.</string>
     <string name="calibration_finished_success">Calibration succeeded</string>
     <string name="calibration_finished_failure">Calibration failed</string>
+    <string name="start_activity_copter">Copter: </string>
+    <string name="activity_start_text_mapcopter">Mapcopter</string>
+    <string name="activity_start_text_not_connected">Not connected</string>
+    <string name="start_activity_text_compass">Compass: </string>
+    <string name="start_activity_text_calibrate">Calibrate</string>
+    <string name="start_activity_text_GPS">GPS: </string>
+    <string name="start_activity_questionmark_logo_contentDescreption">Questionmark logo for remoteaccess info</string>
+    <string name="start_activity_text_remoteaccess">Remote access: </string>
+    <string name="activity_start_button_take_off">Take off!!</string>
+    <string name="start_activity_mapcopter_logo_contentDescreption">mapcopter logo</string>
+    <string name="remote_access_info_main_text">Remote access enables videoview and/or control over internet. You may input server IP address below.</string>
+    <string name="remote_access_info_hint_text">INSERT IP ADDRESS HERE!</string>
+    <string name="remote_access_info_text_radio_button_remotewatch">Allow view only</string>
+    <string name="remote_access_info_radiobutton_remoteControl">Allow remote access</string>
+    <string name="remote_access_info_button_ok">OK</string>
 </resources>
