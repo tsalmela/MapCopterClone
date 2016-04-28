@@ -32,8 +32,8 @@
 
         <TextureView
             android:id="@+id/camera_view"
-            android:layout_width="300dp"
-            android:layout_height="200dp"
+            android:layout_width="320dp"
+            android:layout_height="180dp"
             android:layout_alignParentBottom="true" />
 
         <LinearLayout

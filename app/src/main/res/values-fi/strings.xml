@@ -24,5 +24,6 @@
     <string name="remote_access_info_text_radio_button_remotewatch">Salli pelkkä kuva</string>
     <string name="remote_access_info_radiobutton_remoteControl">Salli etäkäyttö</string>
     <string name="remote_access_info_button_ok">OK</string>
+    <string name="activity_start_text_connected">Yhdistetty</string>
 
 </resources>

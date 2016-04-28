@@ -25,4 +25,5 @@
     <string name="remote_access_info_text_radio_button_remotewatch">Allow view only</string>
     <string name="remote_access_info_radiobutton_remoteControl">Allow remote access</string>
     <string name="remote_access_info_button_ok">OK</string>
+    <string name="activity_start_text_connected">Connected</string>
 </resources>
