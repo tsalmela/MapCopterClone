@@ -110,7 +110,6 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
                 //heightText.setText("Korkeus: " + progressText + "/" + seekBar.getMax());
                 heightText.setText("" + progress);
                 mapCopterManager.setAltitude(progress);
-                Toast.makeText(getApplicationContext(), "Stopped tracking seekbar", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -186,6 +185,8 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
                 mMap.getUiSettings().setMyLocationButtonEnabled(false);
                 //Disabling rotate gestures for the map
                 mMap.getUiSettings().setRotateGesturesEnabled(false);
+                mMap.getUiSettings().setTiltGesturesEnabled(false);
+                
 
                 mMap.setMyLocationEnabled(false);
 
