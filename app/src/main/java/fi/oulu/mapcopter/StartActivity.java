@@ -120,10 +120,14 @@ public class StartActivity extends AppCompatActivity {
     public void onCopterConnectionChanged(CopterConnectionEvent event) {
         if (event.isConnected()) {
             TextView mInfo = (TextView) findViewById(R.id.textView_Connection);
-            mInfo.setText("Yhdistetty");
+            if (event.getModel() != null && !event.getModel().isEmpty()) {
+                mInfo.setText(event.getModel());
+            } else {
+                mInfo.setText(R.string.activity_start_text_connected);
+            }
         } else {
             TextView mInfo = (TextView) findViewById(R.id.textView_Connection);
-            mInfo.setText("Ei yhteyttä");
+            mInfo.setText(R.string.activity_start_text_not_connected);
         }
     }
 

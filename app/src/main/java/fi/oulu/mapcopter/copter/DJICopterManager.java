@@ -259,7 +259,7 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
                     @Override
                     public void onResult(DJIError error) {
                         if (error != null) {
-                            eventBus.post(new CopterStatusChangeEvent("Failed to stop mission: " + error.getDescription()));
+                            //eventBus.post(new CopterStatusChangeEvent("Failed to stop mission: " + error.getDescription()));
                         } else {
                             eventBus.post(new CopterStatusChangeEvent("Stopped mission"));
                         }
@@ -333,7 +333,7 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
                     public void onResult(DJIError error) {
                         if (error != null) {
                             Log.e(TAG, "preparemission error: " + error.getDescription());
-                            eventBus.post(new CopterStatusChangeEvent("Preparemission failed: " + error.getDescription()));
+                            //eventBus.post(new CopterStatusChangeEvent("Preparemission failed: " + error.getDescription()));
                         } else {
                             Log.d(TAG, "onResult: preparemission completed");
                             if (isConnected()) {
@@ -341,7 +341,7 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
                                     @Override
                                     public void onResult(DJIError error) {
                                         if (error != null) {
-                                            eventBus.post(new CopterStatusChangeEvent("Start mission failed: " + error.getDescription()));
+                                            //eventBus.post(new CopterStatusChangeEvent("Start mission failed: " + error.getDescription()));
                                             Log.e(TAG, "Start mission error: " + error.getDescription());
                                         } else {
                                             eventBus.post(new CopterStatusChangeEvent("Mission started"));
@@ -394,16 +394,18 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
         mProduct = newProduct;
         Log.d(TAG, "onProductChanged");
         boolean isConnected = false;
+        String model = null;
         if (mProduct != null) {
             isConnected = true;
             initProduct(mProduct);
             mProduct.setDJIBaseProductListener(mDJIBaseProductListener);
+            model = mProduct.getModel().getDisplayName();
             eventBus.post(new CopterStatusChangeEvent("Product connected: " + mProduct.getModel().getDisplayName()));
         } else {
             Log.w(TAG, "onProductChange new product is null");
             eventBus.post(new CopterStatusChangeEvent("Product disconnected"));
         }
-        eventBus.post(new CopterConnectionEvent(isConnected));
+        eventBus.post(new CopterConnectionEvent(isConnected, model));
     }
 
     private DJIBaseProduct.DJIBaseProductListener mDJIBaseProductListener = new DJIBaseProduct.DJIBaseProductListener() {
