@@ -16,7 +16,7 @@ For DJI quadcopters, developed and tested on Phantom 3 Professional
 - Get DJI developer rights + app key and DJI SDK for android development
   - For developer rights + app key:
     - Go to https://developer.dji.com/register/ and fill in your details
-    - After loging in to your account select "Create App" and select mobile SDK. Fill the fields as you wish but package name _must_ be 'fi.oulu.mapcopter
+    - After loging in to your account select "Create App" and select mobile SDK. Fill the fields as you wish but package name _must_ be 'fi.oulu.mapcopter'
     - Activate the app via email send to you. After clicking verification link in the email send to you you go to a page showing information of the app you just created.
     - Take down the 'App key' since you will be needing it to develop under package name 'fi.oulu.mapcopter'
   - For DJI SDK:
@@ -25,7 +25,7 @@ For DJI quadcopters, developed and tested on Phantom 3 Professional
 - Setting up the project to start developing:
   - Download mapcopter project from github *INSERT LINK HERE*
   - Unzip downloaded SDK and move 'API library' folder to mapcopter project folder
-  - Open mapcopter project (Android studio recommended) and open AndroidManifest.xml
+  - Open mapcopter project (Android studio recommended) and open `AndroidManifest.xml`
   - Replace the 'INSERT APP KEY HERE' with the app key you got earlier
   
 There you go! You are now ready to start developing mapcopter!
