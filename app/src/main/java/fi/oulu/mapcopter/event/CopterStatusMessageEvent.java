@@ -1,13 +1,13 @@
 package fi.oulu.mapcopter.event;
 
-public class CopterStatusChangeEvent {
+public class CopterStatusMessageEvent {
     private String message = "";
 
-    public CopterStatusChangeEvent(String message) {
+    public CopterStatusMessageEvent(String message) {
         this.message = message;
     }
 
-    public CopterStatusChangeEvent() {
+    public CopterStatusMessageEvent() {
     }
 
     public String getMessage() {

@@ -9,5 +9,21 @@
     <string name="calibration_step2">Vaihe 2: Aseta kopteri nokka alaspäin ja ja käännä kopteria 360 astetta uudelleen.</string>
     <string name="calibration_finished_success">Kalibrointi onnistui</string>
     <string name="calibration_finished_failure">Kalibrointi epäonnistui</string>
+    <string name="start_activity_copter">Kopteri: </string>
+    <string name="activity_start_text_mapcopter">Mapcopter</string>
+    <string name="activity_start_text_not_connected">Ei yhteydessä</string>
+    <string name="start_activity_text_compass">Kompassi: </string>
+    <string name="start_activity_text_calibrate">Kalibroi</string>
+    <string name="start_activity_text_GPS">GPS: </string>
+    <string name="start_activity_questionmark_logo_contentDescreption"> Kysymysmerkin logo etäyhteydelle</string>
+    <string name="start_activity_text_remoteaccess">Etäkäyttö: </string>
+    <string name="activity_start_button_take_off">Lentoon!!</string>
+    <string name="start_activity_mapcopter_logo_contentDescreption">mapcopterin logo</string>
+    <string name="remote_access_info_main_text">Etäohjaus mahdollistaa kopterin videokuvan katselun ja/tai ohjaamisen etänä wwww pavelun yli. Voit syöttää alas serverin IP osoitteen jota käytät videokuvan/käskyjen välittämiseen.</string>
+    <string name="remote_access_info_hint_text"> SYÖTÄ IP OSOITE TÄHÄN! </string>
+    <string name="remote_access_info_text_radio_button_remotewatch">Salli pelkkä kuva</string>
+    <string name="remote_access_info_radiobutton_remoteControl">Salli etäkäyttö</string>
+    <string name="remote_access_info_button_ok">OK</string>
+    <string name="activity_start_text_connected">Yhdistetty</string>
 
 </resources>

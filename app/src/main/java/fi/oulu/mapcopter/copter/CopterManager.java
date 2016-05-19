@@ -17,6 +17,8 @@ public abstract class CopterManager {
 
     public abstract void startCompassCalibration();
 
+    public abstract void takeOff();
+
     public static CopterManager createManager(Context context, Bus eventBus) {
         String arch = System.getProperty("os.arch");
         Log.i(TAG, "DJICameraManager: cpu architecture: " + arch);
@@ -40,6 +42,8 @@ public abstract class CopterManager {
 
     public abstract int getGPSStatus();
 
+    public abstract void setAltitude(float altitude);
+
     @NonNull
     public abstract LatLng getCurrentPosition();
 
@@ -49,4 +53,11 @@ public abstract class CopterManager {
     }
 
     public abstract void stopCompassCalibration();
+
+    public abstract void getHomePosition(final DJICopterManager.HomePositionCallback callback);
+
+
+    public interface HomePositionCallback {
+        void onSuccess(double latitude, double longitude);
+    }
 }

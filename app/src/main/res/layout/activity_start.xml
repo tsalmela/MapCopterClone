@@ -1,111 +1,156 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/background_light"
+    android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="fi.oulu.mapcopter.StartActivity"
-    android:background="@color/background_floating_material_dark">
-
-
+    tools:context="fi.oulu.mapcopter.StartActivity">
 
     <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="wrap_content"
+        android:id="@+id/headlineLinearLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/linearLayout">
+        android:gravity="center"
+        android:orientation="horizontal">
 
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Kopteri:"
-            android:id="@+id/textView"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="108dp"
-            android:textColor="@color/abc_primary_text_material_dark"
-            android:textSize="35dp" />
+            android:layout_height="match_parent"
+            android:text="@string/activity_start_text_mapcopter"
+            android:textColor="@android:color/holo_green_dark"
+            android:textSize="42sp" />
 
-        <TextView
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Kompassi:"
-            android:id="@+id/textView2"
-            android:textColor="@color/abc_primary_text_material_dark"
-            android:textSize="35dp"
-            android:layout_below="@+id/textView"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="GPS:"
-            android:id="@+id/textView3"
-            android:textColor="@color/abc_primary_text_material_dark"
-            android:textSize="35dp"
-            android:layout_below="@+id/textView2"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+            android:contentDescription="@string/start_activity_mapcopter_logo_contentDescreption"
+            android:src="@mipmap/ic_launcher" />
     </LinearLayout>
 
     <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginRight="97dp"
-        android:layout_marginEnd="97dp"
-        android:layout_above="@+id/button2">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
-        <TextView
+        <LinearLayout
+            android:id="@+id/leftTextLayout"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Ei yhteydessä"
-            android:id="@+id/textView_Connection"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="108dp"
-            android:textColor="@color/abc_primary_text_material_dark"
-            android:textSize="35dp" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <Button
+            <LinearLayout
+                android:id="@+id/copterLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="50dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/startActivityTexts"
+                    android:text="@string/start_activity_copter" />
+
+                <TextView
+                    android:id="@+id/textView_Connection"
+                    style="@style/startActivityTexts"
+                    android:text="@string/activity_start_text_not_connected" />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/compassLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/startActivityTexts"
+                    android:text="@string/start_activity_text_compass" />
+
+                <Button
+                    android:id="@+id/button_calibrate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/start_activity_text_calibrate" />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/gpsLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/startActivityTexts"
+                    android:text="@string/start_activity_text_GPS" />
+
+                <ProgressBar
+                    android:id="@+id/progress"
+                    style="@android:style/Widget.ProgressBar.Horizontal"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="8dp"
+                    android:indeterminateOnly="false"
+                    android:max="120"
+                    android:progress="0"
+                    android:progressDrawable="@drawable/gps_status" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/remoteAccessLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="bottom"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/button_remoteAccessInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:contentDescription="@string/start_activity_questionmark_logo_contentDescreption"
+                    android:src="@android:drawable/ic_menu_help"
+                    android:tint="#e7ff1870" />
+
+                <TextView
+                    style="@style/startActivityTexts"
+                    android:text="@string/start_activity_text_remoteaccess" />
+
+                <CheckBox
+                    android:id="@+id/remoteAccessCheckbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="1dp" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Kalibroi"
-            android:id="@+id/button" />
+            android:layout_height="match_parent"
+            android:gravity="bottom|end"
+            android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Ei yhteydessä"
-            android:id="@+id/textView3"
-            android:textColor="@color/abc_primary_text_material_dark"
-            android:textSize="35dp"
-            android:layout_below="@+id/textView2"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+            <Button
+                android:id="@+id/buttonStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/activity_start_button_take_off" />
+
+
+        </LinearLayout>
+
     </LinearLayout>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Aloita"
-        android:id="@+id/buttonStart"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
-</RelativeLayout>
+</LinearLayout>

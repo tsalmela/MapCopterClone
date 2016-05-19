@@ -3,7 +3,9 @@ package fi.oulu.mapcopter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.TextureView;
+import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,62 +26,92 @@ import com.squareup.otto.Subscribe;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import fi.oulu.mapcopter.copter.AircraftPositionChangeListener;
 import fi.oulu.mapcopter.copter.CopterManager;
+import fi.oulu.mapcopter.event.BatteryChangeEvent;
 import fi.oulu.mapcopter.event.CopterConnectionEvent;
-import fi.oulu.mapcopter.event.CopterStatusChangeEvent;
+import fi.oulu.mapcopter.event.CopterStatusMessageEvent;
 import fi.oulu.mapcopter.view.TouchableMapFragment;
 import fi.oulu.mapcopter.view.VideoSurfaceListener;
 
-public class MapActivity extends AppCompatActivity implements AircraftPositionChangeListener {
+public class MapActivity extends AppCompatActivity implements AircraftPositionChangeListener, TouchableMapFragment.TouchListener {
     private static final String TAG = MapActivity.class.getSimpleName();
     public static final double MAP_BOUNDS_LIMIT_LATITUDE = 0.0035;
     public static final double MAP_BOUNDS_LIMIT_LONGITUDE = 0.01;
+
 
     private CopterManager mapCopterManager;
     private GoogleMap mMap;
     private Marker aircraftLocationMarker;
     private Marker destinationMarker;
+    private Marker homeMarker;
 
     private Bus eventBus;
     private Polygon boundsPolygon;
+
+    @Bind(R.id.seekBar)
+    SeekBar altitudeBar;
+
+    @Bind(R.id.text_height)
+    TextView heightText;
+
+    @Bind(R.id.target_marker)
+    View targetMarker1;
+    @Bind(R.id.target_marker2)
+    View targetMarker2;
+
+    @Bind(R.id.battery)
+    TextView batteryText;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         ButterKnife.bind(this);
+        eventBus = MapCopterApplication.getDefaultBus();
+        mapCopterManager = MapCopterApplication.getCopterManager();
 
         prepareMap();
 
-        final TextView heightText = (TextView) findViewById(R.id.textView);
-
-        SeekBar seekBar = (SeekBar) findViewById(R.id.seekBar);
-        heightText.setText("Korkeus: " + seekBar.getProgress() + "/" + seekBar.getMax());
-
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            int progress = 0;
-
+        // intercepts clicks under the altitude bar to avoid accidental clicks on the map
+        View clickInterceptor = findViewById(R.id.SeekBarClickInterceptor);
+        clickInterceptor.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progresValue, boolean fromUser) {
-                progress = progresValue;
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                String progressText = ("" + progress).format("%1$-" + 3 + "s", "XXX").replaceAll(" ", "0");
-                heightText.setText("Korkeus: " + progressText + "/" + seekBar.getMax());
-                Toast.makeText(getApplicationContext(), "Stopped tracking seekbar", Toast.LENGTH_SHORT).show();
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return true; // return true to avoid propagating the touch event to the map
             }
         });
 
-        eventBus = MapCopterApplication.getDefaultBus();
-        mapCopterManager = MapCopterApplication.getCopterManager();
+        heightText.setText("" + altitudeBar.getProgress());
+
+        altitudeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int progress = 0;
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progressValue, boolean fromUser) {
+                if (fromUser) {
+                    progress = progressValue;
+                    float zoom = (float) (21 - ((progress - 20) / 12.79));
+                    mMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
+                    heightText.setText("" + progress);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                heightText.setText("" + progress);
+                mapCopterManager.setAltitude(progress);
+            }
+        });
+
         mapCopterManager.setCopterPositionChangeListener(this);
 
         TextureView mCameraView = ButterKnife.findById(this, R.id.camera_view);
@@ -90,8 +122,6 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
     @OnClick(R.id.button_stop)
     public void onStopButtonClicked() {
         mapCopterManager.stopCopter();
-        //LatLng target = mMap.getCameraPosition().target;
-        //onAircraftPositionChanged(target.latitude, target.longitude, 0, 0);
     }
 
     private void moveToMapCenter() {
@@ -102,7 +132,7 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
             LatLng target = mMap.getCameraPosition().target;
             destinationMarker.setPosition(target);
             mapCopterManager.moveToPos(target.latitude, target.longitude);
-            displayToast("Moving to " + target.toString());
+            //displayToast("Moving to " + target.toString());
         }
     }
 
@@ -118,30 +148,48 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
         eventBus.unregister(this);
     }
 
-    private void onMapTouchEnd() {
+    @Override
+    public void onMapTouchStart() {
+        setTargetMarkerVisible(true);
+    }
+
+    @Override
+    public void onMapTouchEnd() {
         LatLng centerOfMap = mMap.getCameraPosition().target;
         Log.d(TAG, centerOfMap.toString());
+        setTargetMarkerVisible(false);
         moveToMapCenter();
     }
 
-    private void prepareMap() {
-        TouchableMapFragment mapFragment = (TouchableMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.setTouchListener(new TouchableMapFragment.TouchListener() {
-            @Override
-            public void onTouchStart() {
-            }
+    private void setTargetMarkerVisible(boolean isVisible) {
+        if (isVisible) {
+            targetMarker1.setVisibility(View.VISIBLE);
+            targetMarker2.setVisibility(View.VISIBLE);
+        } else {
+            targetMarker1.setVisibility(View.INVISIBLE);
+            targetMarker2.setVisibility(View.INVISIBLE);
+        }
+    }
 
-            @Override
-            public void onTouchEnd() {
-                onMapTouchEnd();
-            }
-        });
+    private void prepareMap() {
+        final TouchableMapFragment mapFragment = (TouchableMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
         mapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 mMap = googleMap;
-                final LatLng lipasto = new LatLng(65.0591, 25.466549);
+                mapFragment.setTouchListener(MapActivity.this);
+
+                //Hiding the top right corner "my location button"
+                mMap.getUiSettings().setMyLocationButtonEnabled(false);
+                //Disabling rotate gestures for the map
+                mMap.getUiSettings().setRotateGesturesEnabled(false);
+                mMap.getUiSettings().setTiltGesturesEnabled(false);
+
+                mMap.setMyLocationEnabled(false);
+
+//                final LatLng lipasto = new LatLng(65.0591, 25.466549);
+                final LatLng aircraftPos = mapCopterManager.getCurrentPosition();
 
                 destinationMarker = mMap.addMarker(new MarkerOptions()
                         .position(new LatLng(0, 0))
@@ -151,16 +199,19 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
                         .anchor(0.5f, 0.5f)
                         .position(new LatLng(0, 0)));
 
-                drawBoundsRectangle(lipasto.latitude, lipasto.longitude);
+                drawBoundsRectangle(aircraftPos.latitude, aircraftPos.longitude);
 
                 //mMap.moveCamera(CameraUpdateFactory.newLatLng(lipasto));
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lipasto, 15));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(aircraftPos, 18));
+
+                updateHomePositionMarker();
 
                 mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
                     @Override
                     public void onCameraChange(CameraPosition cameraPosition) {
                         LatLng currentPosition = mapCopterManager.getCurrentPosition();
                         //LatLng currentPosition = lipasto;
+
                         double latDifference = cameraPosition.target.latitude - currentPosition.latitude;
                         double longDifference = cameraPosition.target.longitude - currentPosition.longitude;
 
@@ -170,6 +221,7 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
                         double newLat = cameraPosition.target.latitude;
 
                         boolean moveCamera = false;
+
 
                         if (latDifference > MAP_BOUNDS_LIMIT_LATITUDE) {
                             moveCamera = true;
@@ -194,6 +246,14 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
                             newLong = currentPosition.longitude - MAP_BOUNDS_LIMIT_LONGITUDE;
                         }
 
+                        //Checking if the user zoomed map and saving the zoom value to zoom
+                        // 1,0 zoom = 12,79m
+                        float zoom = mMap.getCameraPosition().zoom;
+                        float altitude = (float) ((21 - zoom) * 12.79 + 20);
+                        mapCopterManager.setAltitude(altitude);
+                        heightText.setText("" + (int) altitude);
+                        altitudeBar.setProgress((int) altitude);
+
                         if (moveCamera) {
                             mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(newLat, newLong)));
                         }
@@ -207,13 +267,44 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
     public void onCopterConnectionChanged(CopterConnectionEvent event) {
         if (event.isConnected()) {
             displayToast("Connected to aircraft");
+            updateHomePositionMarker();
         } else {
             displayToast("Disconnected from aircraft");
         }
     }
 
+    private void updateHomePositionMarker() {
+        mapCopterManager.getHomePosition(new CopterManager.HomePositionCallback() {
+            @Override
+            public void onSuccess(final double latitude, final double longitude) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mMap == null) {
+                            return;
+                        }
+                        if (homeMarker == null) {
+                            homeMarker = mMap.addMarker(new MarkerOptions()
+                                    .position(new LatLng(latitude, longitude))
+                                    .anchor(0.5f, 0.5f)
+                                    .icon(BitmapDescriptorFactory.fromResource(android.R.drawable.ic_menu_mylocation)));
+                        } else {
+                            homeMarker.setPosition(new LatLng(latitude, longitude));
+                        }
+                    }
+                });
+            }
+        });
+    }
+
     @Subscribe
-    public void onCopterStatusChanged(CopterStatusChangeEvent event) {
+    public void onBatteryChange(BatteryChangeEvent event) {
+        int batteryRemaining = event.getBatteryPercentage();
+        batteryText.setText("Battery:" + batteryRemaining + "%");
+    }
+
+    @Subscribe
+    public void onCopterStatusChanged(CopterStatusMessageEvent event) {
         displayToast(event.getMessage());
     }
 
@@ -222,7 +313,6 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
     }
 
     private void drawBoundsRectangle(double latitude, double longitude) {
-
         List<LatLng> points = new ArrayList<>();
         points.add(new LatLng(latitude + MAP_BOUNDS_LIMIT_LATITUDE, longitude + MAP_BOUNDS_LIMIT_LONGITUDE));
         points.add(new LatLng(latitude + MAP_BOUNDS_LIMIT_LATITUDE, longitude - MAP_BOUNDS_LIMIT_LONGITUDE));
@@ -245,11 +335,9 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
             if (mMap != null) {
                 double lat = aircraftLocationMarker.getPosition().latitude;
                 double lon = aircraftLocationMarker.getPosition().longitude;
-
                 drawBoundsRectangle(lat, lon);
-
-
             }
         }
     }
 }
+

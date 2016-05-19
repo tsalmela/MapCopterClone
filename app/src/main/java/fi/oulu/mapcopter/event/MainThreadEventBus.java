@@ -6,7 +6,7 @@ import android.os.Looper;
 import com.squareup.otto.Bus;
 
 /**
- * sub-class of otto event bus that posts all events in the main UI thread
+ * subclass of otto event bus that posts all events in the main UI thread
  */
 public class MainThreadEventBus extends Bus {
 

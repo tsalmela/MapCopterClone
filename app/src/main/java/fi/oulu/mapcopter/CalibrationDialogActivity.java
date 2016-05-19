@@ -2,31 +2,33 @@ package fi.oulu.mapcopter;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import dji.sdk.FlightController.DJICompass;
 import fi.oulu.mapcopter.copter.CopterManager;
 
-import static dji.sdk.FlightController.DJICompass.DJICompassCalibrationStatus.*;
+import static dji.sdk.FlightController.DJICompass.DJICompassCalibrationStatus.Failed;
+import static dji.sdk.FlightController.DJICompass.DJICompassCalibrationStatus.Horizontal;
+import static dji.sdk.FlightController.DJICompass.DJICompassCalibrationStatus.Succeeded;
+import static dji.sdk.FlightController.DJICompass.DJICompassCalibrationStatus.Vertical;
 
 public class CalibrationDialogActivity extends AppCompatActivity {
     private static final String TAG = CalibrationDialogActivity.class.getSimpleName();
-
+    private static final int CALIBRATION_HORIZONTAL_STEP = 1;
+    private static final int CALIBRATION_VERTICAL_STEP = 2;
 
     @Bind(R.id.text_tutorial)
     TextView tutorialText;
 
     private CopterManager copterManager;
+    private boolean forceStop = false;
+    private int currentCalibrationStep = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -35,31 +37,49 @@ public class CalibrationDialogActivity extends AppCompatActivity {
         setContentView(R.layout.calibration_dialog);
         ButterKnife.bind(this);
 
-
         copterManager = MapCopterApplication.getCopterManager();
         copterManager.startCompassCalibration();
         new CalibrationStatusChecker().execute();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        forceStop = true;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        forceStop = false;
+    }
+
     public void showHorizontalTutorial() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                tutorialText.setText(R.string.calibration_step1);
-            }
-        });
+        if (currentCalibrationStep != CALIBRATION_HORIZONTAL_STEP) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    tutorialText.setText(R.string.calibration_step1);
+                    currentCalibrationStep = CALIBRATION_HORIZONTAL_STEP;
+                }
+            });
+        }
     }
 
     public void showVerticalTutorial() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                tutorialText.setText(R.string.calibration_step2);
-            }
-        });
+        if (currentCalibrationStep != CALIBRATION_VERTICAL_STEP) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    tutorialText.setText(R.string.calibration_step2);
+                    currentCalibrationStep = CALIBRATION_VERTICAL_STEP;
+                }
+            });
+        }
     }
 
 
+    @UiThread
     private void showCalibrationFinished(boolean success) {
         if (success) {
             tutorialText.setText(R.string.calibration_finished_success);
@@ -80,8 +100,10 @@ public class CalibrationDialogActivity extends AppCompatActivity {
 
             Log.d(TAG, "Started calibration status checker");
 
-            while (compassStatus != Failed.value()
+            while (!forceStop
+                    && compassStatus != Failed.value()
                     && compassStatus != Succeeded.value()) {
+
                 compassStatus = copterManager.getCompassStatus();
 
                 Log.d(TAG, "Compass status is " + compassStatus);
@@ -97,18 +119,15 @@ public class CalibrationDialogActivity extends AppCompatActivity {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                    forceStop = true;
                 }
             }
 
             copterManager.stopCompassCalibration();
 
-            Log.d(TAG, "Calibration status: " + compassStatus);
+            Log.d(TAG, "Calibration stopped, status: " + compassStatus);
 
-            if (compassStatus == Succeeded.value()) {
-                return true;
-            } else {
-                return false;
-            }
+            return compassStatus == Succeeded.value();
         }
 
         @Override
