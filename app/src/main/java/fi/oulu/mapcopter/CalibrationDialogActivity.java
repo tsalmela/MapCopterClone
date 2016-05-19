@@ -22,8 +22,10 @@ public class CalibrationDialogActivity extends AppCompatActivity {
     private static final String TAG = CalibrationDialogActivity.class.getSimpleName();
     private static final int CALIBRATION_HORIZONTAL_STEP = 1;
     private static final int CALIBRATION_VERTICAL_STEP = 2;
+
     @Bind(R.id.text_tutorial)
     TextView tutorialText;
+
     private CopterManager copterManager;
     private boolean forceStop = false;
     private int currentCalibrationStep = 0;
@@ -117,6 +119,7 @@ public class CalibrationDialogActivity extends AppCompatActivity {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                    forceStop = true;
                 }
             }
 

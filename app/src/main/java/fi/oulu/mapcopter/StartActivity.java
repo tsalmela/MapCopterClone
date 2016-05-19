@@ -1,51 +1,42 @@
 package fi.oulu.mapcopter;
 
+import android.Manifest;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.hardware.usb.UsbAccessory;
+import android.hardware.usb.UsbManager;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.res.TypedArray;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.support.v7.widget.Toolbar;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ProgressBar;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ClipDrawable;
-import android.view.Gravity;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
-import android.os.Handler;
 
 
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import dji.sdk.FlightController.DJIFlightControllerDataType;
 import fi.oulu.mapcopter.event.CopterConnectionEvent;
 
 public class StartActivity extends AppCompatActivity {
-
     private static final String TAG = StartActivity.class.getSimpleName();
+    private static final String ACTION_USB_PERMISSION = "fi.oulu.mapcopter.USB_PERMISSION";
+
     private Bus eventBus;
 
-    private static final int PROGRESS = 0x1;
+    @Bind(R.id.progress)
+    ProgressBar gpsStatusBar;
 
-    private ProgressBar mProgress;
-    private int mProgressStatus = 50;
-
-    private Handler mHandler = new Handler();
-
-    private boolean gpsStatusCheckRunning = true;
+    private boolean gpsStatusCheckRunning;
 
     public int getGpsSignalStatus() {
         return MapCopterApplication.getCopterManager().getGPSStatus();
@@ -57,26 +48,18 @@ public class StartActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
         ButterKnife.bind(this);
-
         eventBus = MapCopterApplication.getDefaultBus();
 
-        Button startButton = (Button) findViewById(R.id.buttonStart);
-        startButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        requestUsbPermission();
+        requestAppPermissions();
 
-                Intent myIntent = new Intent(StartActivity.this, MapActivity.class);
-                StartActivity.this.startActivity(myIntent);
-                MapCopterApplication.getCopterManager().takeOff();
+        startGpsStatusChecker();
+    }
 
-            }
-        });
-
-        mProgress = (ProgressBar) findViewById(R.id.progress);
-
+    private void startGpsStatusChecker() {
+        gpsStatusCheckRunning = true;
         new Thread(new Runnable() {
             public void run() {
-
                 while (gpsStatusCheckRunning) {
                     int status = getGpsSignalStatus();
                     if (status == 255) {
@@ -87,21 +70,63 @@ public class StartActivity extends AppCompatActivity {
 
                     final int progress = status * 20;
 
-                    mHandler.post(new Runnable() {
+                    runOnUiThread(new Runnable() {
                         public void run() {
-                            mProgress.setProgress(progress);
+                            if (gpsStatusBar != null) {
+                                gpsStatusBar.setProgress(progress);
+                            }
                         }
                     });
 
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        gpsStatusCheckRunning = false;
                     }
                 }
             }
         }).start();
+    }
 
+    private void requestUsbPermission() {
+        UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
+        UsbAccessory[] accessoryList = manager.getAccessoryList();
+        if (accessoryList != null) {
+            PendingIntent intent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
+//            IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
+            for (UsbAccessory accessory : accessoryList) {
+                Log.d(TAG, "Requesting permission for " + accessory.toString() + " " + accessory.getDescription());
+                manager.requestPermission(accessory, intent);
+            }
+        }
+    }
+
+    private void requestAppPermissions() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (permission != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_PHONE_STATE,
+                        Manifest.permission.INTERNET,
+                        Manifest.permission.WAKE_LOCK,
+                        Manifest.permission.ACCESS_WIFI_STATE,
+                        Manifest.permission.CHANGE_WIFI_STATE,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_NETWORK_STATE,
+                }, 123);
+            }
+//        }
+    }
+
+    @OnClick(R.id.buttonStart)
+    public void onStartButton() {
+        gpsStatusCheckRunning = false;
+        Intent myIntent = new Intent(StartActivity.this, MapActivity.class);
+        StartActivity.this.startActivity(myIntent);
+        MapCopterApplication.getCopterManager().takeOff();
     }
 
     @Override
@@ -113,6 +138,7 @@ public class StartActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        gpsStatusCheckRunning = false;
         eventBus.unregister(this);
     }
 
@@ -133,14 +159,12 @@ public class StartActivity extends AppCompatActivity {
 
     @OnClick(R.id.button_calibrate)
     public void onCalibrateClicked() {
-        Log.d(TAG, "Calibrate button clicked");
         Intent intent = new Intent(this, CalibrationDialogActivity.class);
         startActivity(intent);
     }
 
     @OnClick(R.id.button_remoteAccessInfo)
-    public void onRemoteInfoClicked(){
-        Log.d(TAG, "onRemoteInfoClicked: ");
+    public void onRemoteInfoClicked() {
         Intent intent = new Intent(this, RemoteInfoDialogActivity.class);
         startActivity(intent);
     }

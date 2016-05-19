@@ -47,9 +47,9 @@ public class TouchableMapFragment extends SupportMapFragment {
     }
 
     public interface TouchListener {
-        void onTouchStart();
+        void onMapTouchStart();
 
-        void onTouchEnd();
+        void onMapTouchEnd();
     }
 
     static class TouchableWrapper extends FrameLayout {
@@ -69,12 +69,12 @@ public class TouchableMapFragment extends SupportMapFragment {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     if (onTouchListener != null) {
-                        onTouchListener.onTouchStart();
+                        onTouchListener.onMapTouchStart();
                     }
                     break;
                 case MotionEvent.ACTION_UP:
                     if (onTouchListener != null) {
-                        onTouchListener.onTouchEnd();
+                        onTouchListener.onMapTouchEnd();
                     }
                     break;
             }

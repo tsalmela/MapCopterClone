@@ -13,19 +13,12 @@ import dji.sdk.FlightController.DJIFlightController;
 import com.google.android.gms.maps.model.LatLng;
 import com.squareup.otto.Bus;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import dji.sdk.FlightController.DJIFlightControllerDataType;
 import dji.sdk.FlightController.DJIFlightControllerDelegate;
-import dji.sdk.MissionManager.DJICustomMission;
 import dji.sdk.MissionManager.DJIMission;
 import dji.sdk.MissionManager.DJIMissionManager;
 import dji.sdk.MissionManager.DJIWaypoint;
 import dji.sdk.MissionManager.DJIWaypointMission;
-import dji.sdk.MissionManager.MissionStep.DJIGoToStep;
-import dji.sdk.MissionManager.MissionStep.DJIMissionStep;
-import dji.sdk.MissionManager.MissionStep.DJIWaypointStep;
 import dji.sdk.Products.DJIAircraft;
 import dji.sdk.SDKManager.DJISDKManager;
 import dji.sdk.base.DJIBaseComponent;
@@ -34,7 +27,7 @@ import dji.sdk.base.DJIError;
 import dji.sdk.base.DJISDKError;
 import fi.oulu.mapcopter.event.BatteryChangeEvent;
 import fi.oulu.mapcopter.event.CopterConnectionEvent;
-import fi.oulu.mapcopter.event.CopterStatusChangeEvent;
+import fi.oulu.mapcopter.event.CopterStatusMessageEvent;
 
 public class DJICopterManager extends CopterManager implements DJISDKManager.DJISDKManagerCallback, DJIMission.DJIMissionProgressHandler {
     private static final String TAG = DJICopterManager.class.getSimpleName();
@@ -43,12 +36,12 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
      * The mission speed can be changed with the control stick
      * in the remote controller up to this maximum speed
      */
-    public static final int MISSION_MAX_FLIGHT_SPEED = 7;
+    public static final int MISSION_MAX_FLIGHT_SPEED = 10;
 
     /**
      * The starting speed for the waypoint missions
      */
-    public static final int MISSION_FLIGHT_SPEED = 1;
+    public static final int MISSION_FLIGHT_SPEED = 3;
 
     private final Bus eventBus;
     private Context context;
@@ -186,12 +179,14 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
         }
     }
 
-    private void updateBattery() {
-        if (mProduct != null) {
-            mProduct.getBattery().setBatteryStateUpdateCallback(new DJIBattery.DJIBatteryStateUpdateCallback() {
+    private void createBatteryStateListener(DJIBaseProduct product) {
+        if (product != null && product.getBattery() != null) {
+            product.getBattery().setBatteryStateUpdateCallback(new DJIBattery.DJIBatteryStateUpdateCallback() {
                 @Override
                 public void onResult(DJIBattery.DJIBatteryState djiBatteryState) {
-                    eventBus.post(new BatteryChangeEvent(djiBatteryState.getBatteryEnergyRemainingPercent()));
+                    if (djiBatteryState != null) {
+                        eventBus.post(new BatteryChangeEvent(djiBatteryState.getBatteryEnergyRemainingPercent()));
+                    }
                 }
             });
         }
@@ -200,9 +195,9 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
 
     private void initProduct(DJIBaseProduct product) {
         if (product instanceof DJIAircraft) {
-            aircraft = (DJIAircraft) mProduct;
+            aircraft = (DJIAircraft) product;
             flightController = aircraft.getFlightController();
-            updateBattery();
+            createBatteryStateListener(product);
 
             if (flightController != null) {
                 flightController.setUpdateSystemStateCallback(new DJIFlightControllerDelegate.FlightControllerUpdateSystemStateCallback() {
@@ -259,9 +254,9 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
                     @Override
                     public void onResult(DJIError error) {
                         if (error != null) {
-                            //eventBus.post(new CopterStatusChangeEvent("Failed to stop mission: " + error.getDescription()));
+                            //eventBus.post(new CopterStatusMessageEvent("Failed to stop mission: " + error.getDescription()));
                         } else {
-                            eventBus.post(new CopterStatusChangeEvent("Stopped mission"));
+                            eventBus.post(new CopterStatusMessageEvent("Stopped mission"));
                         }
                         if (callback != null) {
                             callback.run();
@@ -281,7 +276,7 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
                     if (error == null) {
                         Log.d(TAG, "Take off success");
                     } else {
-                        eventBus.post(new CopterStatusChangeEvent("Take off failed: " + error.getDescription()));
+                        eventBus.post(new CopterStatusMessageEvent("Take off failed: " + error.getDescription()));
                     }
                 }
             });
@@ -333,7 +328,7 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
                     public void onResult(DJIError error) {
                         if (error != null) {
                             Log.e(TAG, "preparemission error: " + error.getDescription());
-                            //eventBus.post(new CopterStatusChangeEvent("Preparemission failed: " + error.getDescription()));
+                            //eventBus.post(new CopterStatusMessageEvent("Preparemission failed: " + error.getDescription()));
                         } else {
                             Log.d(TAG, "onResult: preparemission completed");
                             if (isConnected()) {
@@ -341,10 +336,10 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
                                     @Override
                                     public void onResult(DJIError error) {
                                         if (error != null) {
-                                            //eventBus.post(new CopterStatusChangeEvent("Start mission failed: " + error.getDescription()));
+                                            //eventBus.post(new CopterStatusMessageEvent("Start mission failed: " + error.getDescription()));
                                             Log.e(TAG, "Start mission error: " + error.getDescription());
                                         } else {
-                                            eventBus.post(new CopterStatusChangeEvent("Mission started"));
+                                            eventBus.post(new CopterStatusMessageEvent("Mission started"));
                                             Log.d(TAG, "Start mission completed");
                                         }
                                     }
@@ -381,11 +376,11 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
             Log.i(TAG, "onGetRegisteredResult registration success");
             boolean connectionSucceeded = DJISDKManager.getInstance().startConnectionToProduct();
             if (!connectionSucceeded) {
-                eventBus.post(new CopterStatusChangeEvent("Failed to connect to product"));
+                eventBus.post(new CopterStatusMessageEvent("Failed to connect to product"));
             }
         } else {
             Log.e(TAG, "onGetRegisteredResult: registration not success " + error.getDescription());
-            eventBus.post(new CopterStatusChangeEvent("DJI App registration failed " + error.getDescription()));
+            eventBus.post(new CopterStatusMessageEvent("DJI App registration failed " + error.getDescription()));
         }
     }
 
@@ -400,10 +395,10 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
             initProduct(mProduct);
             mProduct.setDJIBaseProductListener(mDJIBaseProductListener);
             model = mProduct.getModel().getDisplayName();
-            eventBus.post(new CopterStatusChangeEvent("Product connected: " + mProduct.getModel().getDisplayName()));
+            eventBus.post(new CopterStatusMessageEvent("Product connected: " + mProduct.getModel().getDisplayName()));
         } else {
             Log.w(TAG, "onProductChange new product is null");
-            eventBus.post(new CopterStatusChangeEvent("Product disconnected"));
+            eventBus.post(new CopterStatusMessageEvent("Product disconnected"));
         }
         eventBus.post(new CopterConnectionEvent(isConnected, model));
     }
@@ -427,7 +422,7 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
         @Override
         public void onProductConnectivityChanged(boolean isConnected) {
             Log.d(TAG, "onProductConnectivityChanged to " + isConnected);
-            // TODO: notify
+            eventBus.post(new CopterStatusMessageEvent("Product connectivity changed to: " + isConnected));
         }
     };
 
