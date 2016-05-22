@@ -1,0 +1,1 @@
+This is a placeholder folder for the DJI sdk. See the root README.md for install instructions.
