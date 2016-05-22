@@ -2,21 +2,18 @@ package fi.oulu.mapcopter.copter;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
-import android.media.MediaCodec;
-import android.media.MediaFormat;
 import android.support.annotation.NonNull;
 import android.util.Log;
-
-import java.io.IOException;
 
 import dji.sdk.AirLink.DJILBAirLink;
 import dji.sdk.Camera.DJICamera;
 import dji.sdk.Camera.DJICameraSettingsDef;
 import dji.sdk.Codec.DJICodecManager;
-import dji.sdk.base.DJIBaseComponent;
 import dji.sdk.base.DJIBaseProduct;
-import dji.sdk.base.DJIError;
 
+/**
+ * Used to display the camera preview from the copter inside a {@link android.view.TextureView}
+ */
 public class DJICameraManager implements DJICamera.CameraReceivedVideoDataCallback, DJILBAirLink.DJIOnReceivedVideoCallback, CameraManager {
     private static final String TAG = DJICameraManager.class.getSimpleName();
 

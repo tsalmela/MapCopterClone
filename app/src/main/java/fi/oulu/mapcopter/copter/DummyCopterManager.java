@@ -7,6 +7,11 @@ import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
+/**
+ * Dummy implementation of the abstract {@link CopterManager}
+ * Can be used to avoid crashing on unsupported devices. (current DJISdk version only supports
+ * armeabi devices)
+ */
 public class DummyCopterManager extends CopterManager {
     private static final String TAG = DummyCopterManager.class.getSimpleName();
 
@@ -72,7 +77,7 @@ public class DummyCopterManager extends CopterManager {
     }
 
     @Override
-    public void getHomePosition(final DJICopterManager.HomePositionCallback callback) {
+    public void getHomePositionAsync(final DJICopterManager.HomePositionCallback callback) {
 
     }
 }

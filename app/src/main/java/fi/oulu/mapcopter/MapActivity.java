@@ -274,7 +274,7 @@ public class MapActivity extends AppCompatActivity implements AircraftPositionCh
     }
 
     private void updateHomePositionMarker() {
-        mapCopterManager.getHomePosition(new CopterManager.HomePositionCallback() {
+        mapCopterManager.getHomePositionAsync(new CopterManager.HomePositionCallback() {
             @Override
             public void onSuccess(final double latitude, final double longitude) {
                 runOnUiThread(new Runnable() {

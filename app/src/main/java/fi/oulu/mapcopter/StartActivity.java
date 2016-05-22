@@ -3,21 +3,18 @@ package fi.oulu.mapcopter;
 import android.Manifest;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.IntentFilter;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.usb.UsbAccessory;
 import android.hardware.usb.UsbManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-
-import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
-import android.widget.TextView;
 import android.widget.ProgressBar;
-
+import android.widget.TextView;
 
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -27,6 +24,11 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import fi.oulu.mapcopter.event.CopterConnectionEvent;
 
+/**
+ * Starting activity, used for preparing the copter (connection, gps, compass)
+ * Transitions to {@link MapActivity} when takeoff button is pressed {@link #onStartButton()}.
+ *
+ */
 public class StartActivity extends AppCompatActivity {
     private static final String TAG = StartActivity.class.getSimpleName();
     private static final String ACTION_USB_PERMISSION = "fi.oulu.mapcopter.USB_PERMISSION";
@@ -37,11 +39,6 @@ public class StartActivity extends AppCompatActivity {
     ProgressBar gpsStatusBar;
 
     private boolean gpsStatusCheckRunning;
-
-    public int getGpsSignalStatus() {
-        return MapCopterApplication.getCopterManager().getGPSStatus();
-    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +53,14 @@ public class StartActivity extends AppCompatActivity {
         startGpsStatusChecker();
     }
 
+    public int getGpsSignalStatus() {
+        return MapCopterApplication.getCopterManager().getGPSStatus();
+    }
+
+    /**
+     * Starts GPS status checking loop on another thread.
+     * It checks the GPS status and updates the UI accordingly.
+     */
     private void startGpsStatusChecker() {
         gpsStatusCheckRunning = true;
         new Thread(new Runnable() {
@@ -88,6 +93,11 @@ public class StartActivity extends AppCompatActivity {
         }).start();
     }
 
+    /**
+     * Request permission to use any connected USB devices.
+     * Required on some devices if starting the application when the copter is
+     * already connected to the device via USB.
+     */
     private void requestUsbPermission() {
         UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
         UsbAccessory[] accessoryList = manager.getAccessoryList();
@@ -101,8 +111,17 @@ public class StartActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Request the necessary permission to use the DJI sdk.
+     * Preparation for Android Marshmallow (api 23) which requires applications
+     * to request permissions at runtime instead of when installing the app.
+     *
+     * Currently not necessary since the targetSdkVersion is 22
+     * because the current DJI SDK version (3.1) does not support android 23 properly.
+     * see app/build.gradle > targetSdkVersion
+     */
     private void requestAppPermissions() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
             if (permission != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[]{
@@ -118,7 +137,7 @@ public class StartActivity extends AppCompatActivity {
                         Manifest.permission.ACCESS_NETWORK_STATE,
                 }, 123);
             }
-//        }
+        }
     }
 
     @OnClick(R.id.buttonStart)

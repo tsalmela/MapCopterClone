@@ -13,7 +13,12 @@ import com.google.android.gms.maps.SupportMapFragment;
 
 /**
  * A drop-in replacement for SupportMapFragment that wraps the map in a frame layout
- * in order to handle touch events
+ * in order to handle touch events. Used to listen for mapTouchStart and mapTouchEnd events.
+ *
+ * Usage:
+ *   Replace your SupportMapFragment inside your layout xml with this
+ *   Implement the {@link TouchListener} interface and
+ *   Call {@link #setTouchListener(TouchListener)} to set the listener for touch start/end
  */
 public class TouchableMapFragment extends SupportMapFragment {
 

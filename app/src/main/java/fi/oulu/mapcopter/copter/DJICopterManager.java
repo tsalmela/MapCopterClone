@@ -6,13 +6,12 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import dji.sdk.Battery.DJIBattery;
-import dji.sdk.FlightController.DJICompass;
-import dji.sdk.FlightController.DJIFlightController;
-
 import com.google.android.gms.maps.model.LatLng;
 import com.squareup.otto.Bus;
 
+import dji.sdk.Battery.DJIBattery;
+import dji.sdk.FlightController.DJICompass;
+import dji.sdk.FlightController.DJIFlightController;
 import dji.sdk.FlightController.DJIFlightControllerDataType;
 import dji.sdk.FlightController.DJIFlightControllerDelegate;
 import dji.sdk.MissionManager.DJIMission;
@@ -29,6 +28,9 @@ import fi.oulu.mapcopter.event.BatteryChangeEvent;
 import fi.oulu.mapcopter.event.CopterConnectionEvent;
 import fi.oulu.mapcopter.event.CopterStatusMessageEvent;
 
+/**
+ * Concrete implementation of {@link CopterManager} for DJI drones using the DJI SDK.
+ */
 public class DJICopterManager extends CopterManager implements DJISDKManager.DJISDKManagerCallback, DJIMission.DJIMissionProgressHandler {
     private static final String TAG = DJICopterManager.class.getSimpleName();
 
@@ -129,7 +131,7 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
 
 
     @Override
-    public void getHomePosition(final HomePositionCallback callback) {
+    public void getHomePositionAsync(final HomePositionCallback callback) {
         if (flightController != null) {
             flightController.getHomeLocation(new DJIBaseComponent.DJICompletionCallbackWith<DJIFlightControllerDataType.DJILocationCoordinate2D>() {
                 @Override
@@ -163,8 +165,9 @@ public class DJICopterManager extends CopterManager implements DJISDKManager.DJI
     }
 
     /**
-     * Locks aircraft attitude so that it doesn't turn towards the waypoint
-     * but stays always pointed towards north.
+     * Locks aircraft to the current attitude, so that it doesn't turn towards the waypoint.
+     *
+     * Currently using {@link DJIWaypoint#heading} in favor of this
      */
     private void lockAttitude() {
         if (aircraft != null) {

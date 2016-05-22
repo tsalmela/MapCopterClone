@@ -1,5 +1,8 @@
 package fi.oulu.mapcopter.event;
 
+/**
+ * Event used to indicate a change in the copter connectivity.
+ */
 public class CopterConnectionEvent {
     private boolean isConnected;
     private String model;

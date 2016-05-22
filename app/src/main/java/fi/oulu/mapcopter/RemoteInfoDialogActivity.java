@@ -11,6 +11,9 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
+/**
+ * Remote connection dialog used to configure remote server IP and settings.
+ */
 public class RemoteInfoDialogActivity extends AppCompatActivity{
 
     private static final String PREF_REMOTE_IP = "remoteIp";
@@ -27,7 +30,6 @@ public class RemoteInfoDialogActivity extends AppCompatActivity{
 
         String remoteIp = PreferenceManager.getDefaultSharedPreferences(this)
                 .getString(PREF_REMOTE_IP, "");
-
         serverAddressField.setText(remoteIp);
     }
 
@@ -36,22 +38,14 @@ public class RemoteInfoDialogActivity extends AppCompatActivity{
         super.onStop();
 
         String ip = serverAddressField.getText().toString();
-
         PreferenceManager.getDefaultSharedPreferences(this)
                 .edit()
                 .putString(PREF_REMOTE_IP, ip)
                 .apply();
     }
 
-    @Override
-    protected void onPostResume() {
-        super.onPostResume();
-    }
-
     @OnClick(R.id.button_remoteAccess_ok)
-    public void onOKClicked(){
+    public void onOkClicked(){
         finish();
     }
-
-
 }

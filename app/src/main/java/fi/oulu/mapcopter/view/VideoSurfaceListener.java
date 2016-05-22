@@ -7,6 +7,12 @@ import android.view.TextureView;
 
 import fi.oulu.mapcopter.copter.CameraManager;
 
+/**
+ * Implementation of the {@link android.view.TextureView.SurfaceTextureListener}
+ * of {@link TextureView} that initializes the {@link CameraManager}
+ * when the surface is available.
+ *
+ */
 public class VideoSurfaceListener implements TextureView.SurfaceTextureListener {
     private static final String TAG = VideoSurfaceListener.class.getSimpleName();
 

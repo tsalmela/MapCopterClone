@@ -18,6 +18,8 @@ import static dji.sdk.FlightController.DJICompass.DJICompassCalibrationStatus.Ho
 import static dji.sdk.FlightController.DJICompass.DJICompassCalibrationStatus.Succeeded;
 import static dji.sdk.FlightController.DJICompass.DJICompassCalibrationStatus.Vertical;
 
+
+
 public class CalibrationDialogActivity extends AppCompatActivity {
     private static final String TAG = CalibrationDialogActivity.class.getSimpleName();
     private static final int CALIBRATION_HORIZONTAL_STEP = 1;
@@ -36,10 +38,13 @@ public class CalibrationDialogActivity extends AppCompatActivity {
         setTitle(getString(R.string.calibration_title));
         setContentView(R.layout.calibration_dialog);
         ButterKnife.bind(this);
-
         copterManager = MapCopterApplication.getCopterManager();
+    }
+
+    private void startCalibration() {
         copterManager.startCompassCalibration();
-        new CalibrationStatusChecker().execute();
+        new CalibrationStatusChecker()
+                .execute();
     }
 
     @Override
@@ -93,11 +98,15 @@ public class CalibrationDialogActivity extends AppCompatActivity {
         finish();
     }
 
+
+    /**
+     * Background task to continuously check for changes in compass calibration status.
+     * Updates UI to show the current calibration step.
+     */
     class CalibrationStatusChecker extends AsyncTask<Void, Void, Boolean> {
         @Override
         protected Boolean doInBackground(Void... params) {
             int compassStatus = copterManager.getCompassStatus();
-
             Log.d(TAG, "Started calibration status checker");
 
             while (!forceStop
@@ -131,9 +140,14 @@ public class CalibrationDialogActivity extends AppCompatActivity {
         }
 
         @Override
+        protected void onCancelled(Boolean aBoolean) {
+            super.onCancelled(aBoolean);
+            copterManager.stopCompassCalibration();
+        }
+
+        @Override
         protected void onPostExecute(Boolean success) {
             showCalibrationFinished(success);
         }
     }
-
 }
