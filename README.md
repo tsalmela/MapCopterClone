@@ -15,9 +15,9 @@ Currently only for DJI quadcopters. Developed and tested on Phantom 3 Profession
   use fi.oulu.mapcopter as the package name.
   - Input your Google Maps API key to `app/src/debug/res/values/google_maps_api.xml`
 - Get DJI app key and save it to `app/src/main/AndroidManifest.xml` (meta-data com.dji.sdk.API_KEY)
-  - Instructions below: [Get DJI App key]()
+  - Instructions below: [Get DJI App key](#get-dji-app-key)
   - use fi.oulu.mapcopter as the package name/bundle identifier when creating the app key
-- Download DJI SDK, see the [instructions below](#DJI-sdk-setup)
+- Download DJI SDK, see the [instructions below](#how-to-set-up-the-dji-sdk-version-31)
 - Run gradle assembleDebug task to build debug APK (or use Android Studio to run project)
     -  `./gradlew assembleDebug`
     - or `./gradlew installDebug` to build and install to a connected device
@@ -32,7 +32,7 @@ Currently only for DJI quadcopters. Developed and tested on Phantom 3 Profession
   - Copy the "App key" from the page and save it to `Mapcopter/app/src/main/AndroidManifest.xml`
     inside the meta-data tag named com.dji.sdk.API_KEY
 
-### How to set up the DJI sdk (version 3.1) [DJI-sdk-setup] ###
+### How to set up the DJI sdk (version 3.1) ###
 
 - Download and extract the v3.1 release from [DJI Github](https://github.com/dji-sdk/Mobile-SDK-Android/archive/v3.1.zip)
 - Go to the extracted folder/Mobile-SDK-Android-3.1/Sample Code/DJI-SDK-LIB
